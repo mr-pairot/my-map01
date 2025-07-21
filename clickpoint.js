@@ -77,7 +77,6 @@ function showCoordinatePopup(latlng) {
             <strong>Lng:</strong> ${lng}<br>
             <a href="${gmapLink}" target="_blank">🔗 เปิดใน Google Maps</a><br>
             <button onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
-            <button onclick="navigator.clipboard.writeText('${gmapLink}')">📋 คัดลอกลิงก์</button>
         </div>
     `;
 
