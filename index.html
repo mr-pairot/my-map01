@@ -1,307 +1,83 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaflet Click Ripple Effect</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        
-        #map {
-            height: 100vh;
-            width: 100%;
-        }
-        
-        .info-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
-            max-width: 250px;
-        }
-        
-        /* CSS สำหรับ Ripple Effect */
-        .ripple-effect {
-            position: absolute;
-            border: 2px solid #808080;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            animation: ripple 1.5s ease-out forwards;
-            background: transparent;
-        }
-        
-        @keyframes ripple {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 1;
-                border-width: 2px;
-            }
-            50% {
-                opacity: 0.7;
-                border-width: 1px;
-            }
-            100% {
-                width: 100px;
-                height: 100px;
-                opacity: 0;
-                border-width: 0.5px;
-            }
-        }
-        
-        /* CSS สำหรับ Center Dot */
-        .center-dot {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 1001;
-        }
-        
-        .controls {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-        
-        .control-button {
-            display: block;
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            background: #007cba;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .control-button:hover {
-            background: #005a8b;
-        }
-        
-        .control-button.stop {
-            background: #dc3545;
-        }
-        
-        .control-button.stop:hover {
-            background: #c82333;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Leaflet Map with Ripple Effect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .ripple-effect {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      margin-left: -10px;
+      margin-top: -10px;
+      background-color: rgba(100, 100, 100, 0.4);
+      border-radius: 50%;
+      animation: ripple-animation 1.5s ease-out forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes ripple-animation {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(10);
+        opacity: 0;
+      }
+    }
+
+    .ripple-center-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      margin-left: -3px;
+      margin-top: -3px;
+      background-color: white;
+      border-radius: 50%;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .custom-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1001;
+      background-color: #fff;
+      border: 1px solid #888;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+  </style>
 </head>
 <body>
-    <div id="map"></div>
-    
-    <div class="controls">
-        <h4>การควบคุม</h4>
-        <button class="control-button stop" id="stopRipples">หยุดเอฟเฟกต์</button>
-        <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            <strong>สถานะ:</strong> <span id="status">พร้อมใช้งาน</span>
-        </div>
-    </div>
-    
-    <div class="info-panel">
-        <h4>วิธีใช้งาน</h4>
-        <p>• คลิกบนแผนที่เพื่อเริ่มเอฟเฟกต์ที่จุดนั้น</p>
-        <p>• เอฟเฟกต์จะทำงานต่อไปเรื่อยๆ</p>
-        <p>• คลิกจุดใหม่เพื่อย้ายเอฟเฟกต์</p>
-        <p>• ใช้ปุ่ม "หยุดเอฟเฟกต์" เพื่อหยุด</p>
-        <div id="click-info">
-            <strong>ตำแหน่งปัจจุบัน:</strong><br>
-            <span id="coordinates">ยังไม่ได้คลิก</span>
-        </div>
-    </div>
 
-    <!-- Leaflet JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    
-    <script>
-        // สร้างแผนที่
-        const map = L.map('map').setView([16.246825, 103.25199], 10);
-        
-        // เพิ่ม tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 18
-        }).addTo(map);
-        
-        // ตัวแปรควบคุมเอฟเฟกต์
-        let currentRippleInterval = null;
-        let currentPosition = null;
-        let currentCenterDot = null;
-        let isRippleActive = false;
-        
-        // ฟังก์ชันสำหรับสร้าง Center Dot
-        function createCenterDot(containerPoint) {
-            // ลบ dot เก่า (ถ้ามี)
-            if (currentCenterDot && currentCenterDot.parentNode) {
-                currentCenterDot.parentNode.removeChild(currentCenterDot);
-            }
-            
-            const dot = document.createElement('div');
-            dot.className = 'center-dot';
-            dot.style.left = containerPoint.x + 'px';
-            dot.style.top = containerPoint.y + 'px';
-            
-            map.getContainer().appendChild(dot);
-            currentCenterDot = dot;
-            
-            return dot;
-        }
-        
-        // ฟังก์ชันอัปเดตตำแหน่ง Center Dot
-        function updateCenterDotPosition() {
-            if (currentCenterDot && currentPosition) {
-                const containerPoint = map.latLngToContainerPoint(currentPosition);
-                currentCenterDot.style.left = containerPoint.x + 'px';
-                currentCenterDot.style.top = containerPoint.y + 'px';
-            }
-        }
-        // ฟังก์ชันสำหรับสร้าง Continuous Gray Ripples
-        function createContinuousRipples(latlng, containerPoint) {
-            const createSingleRipple = () => {
-                // ตรวจสอบว่าตำแหน่งยังเหมือนเดิมหรือไม่
-                const currentContainerPoint = map.latLngToContainerPoint(currentPosition);
-                
-                // สร้าง ripple เดียว
-                const ripple = document.createElement('div');
-                ripple.className = 'ripple-effect';
-                ripple.style.left = currentContainerPoint.x + 'px';
-                ripple.style.top = currentContainerPoint.y + 'px';
-                
-                map.getContainer().appendChild(ripple);
-                
-                setTimeout(() => {
-                    if (ripple.parentNode) {
-                        ripple.parentNode.removeChild(ripple);
-                    }
-                }, 1500);
-            };
-            
-            // สร้าง ripple ครั้งแรกทันที
-            createSingleRipple();
-            
-            // สร้าง ripple ต่อเนื่องทุกๆ 800ms
-            currentRippleInterval = setInterval(createSingleRipple, 800);
-        }
-        
-        // ฟังก์ชันหยุดเอฟเฟกต์
-        function stopRipples() {
-            if (currentRippleInterval) {
-                clearInterval(currentRippleInterval);
-                currentRippleInterval = null;
-            }
-            isRippleActive = false;
-            currentPosition = null;
-            
-            // ล้าง ripple ที่เหลืออยู่
-            const existingRipples = document.querySelectorAll('.ripple-effect');
-            existingRipples.forEach(ripple => {
-                if (ripple.parentNode) {
-                    ripple.parentNode.removeChild(ripple);
-                }
-            });
-            
-            // ลบ center dot
-            if (currentCenterDot && currentCenterDot.parentNode) {
-                currentCenterDot.parentNode.removeChild(currentCenterDot);
-                currentCenterDot = null;
-            }
-            
-            updateStatus('พร้อมใช้งาน');
-            document.getElementById('coordinates').innerHTML = 'ยังไม่ได้คลิก';
-        }
-        
-        // ฟังก์ชันอัปเดตสถานะ
-        function updateStatus(status) {
-            document.getElementById('status').textContent = status;
-        }
-        
-        // Event listener สำหรับการคลิกแผนที่
-        map.on('click', function(e) {
-            const latlng = e.latlng;
-            
-            // หยุดเอฟเฟกต์เก่า (ถ้ามี)
-            if (currentRippleInterval) {
-                stopRipples();
-            }
-            
-            // อัปเดตตำแหน่งปัจจุบัน
-            currentPosition = latlng;
-            const containerPoint = map.latLngToContainerPoint(latlng);
-            
-            // สร้าง center dot
-            createCenterDot(containerPoint);
-            
-            // อัปเดตข้อมูลตำแหน่ง
-            document.getElementById('coordinates').innerHTML = 
-                `Lat: ${latlng.lat.toFixed(6)}<br>Lng: ${latlng.lng.toFixed(6)}`;
-            
-            // เริ่มเอฟเฟกต์ใหม่
-            isRippleActive = true;
-            updateStatus('กำลังทำงาน...');
-            createContinuousRipples(latlng, containerPoint);
-        });
-        
-        // อัปเดตตำแหน่งเอฟเฟกต์และ center dot เมื่อแผนที่เลื่อนหรือซูม
-        map.on('moveend zoomend', function() {
-            updateCenterDotPosition();
-        });
-        
-        // Event listener สำหรับปุ่มหยุด
-        document.getElementById('stopRipples').addEventListener('click', function() {
-            stopRipples();
-        });
-        
-        // เพิ่มตัวอย่างจุดสำคัญบนแผนที่
-        const marker = L.marker([16.246825, 103.25199]).addTo(map)
-            .bindPopup('<b>มหาวิทยาลัยมหาสารคาม</b><br>คลิกบนแผนที่เพื่อเริ่มเอฟเฟกต์ต่อเนื่อง');
-        
-        // เพิ่ม marker อื่นๆ
-        L.marker([16.2423, 103.2547]).addTo(map)
-            .bindPopup('ศาลากลางจังหวัดมหาสารคาม');
-            
-        L.marker([16.1833, 103.3000]).addTo(map)
-            .bindPopup('อำเภอกันทรวิชัย');
-        
-        // เพิ่ม event listener สำหรับ keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                if (isRippleActive) {
-                    stopRipples();
-                }
-            }
-        });
-        
-        // แสดงคำแนะนำเพิ่มเติม
-        console.log('💡 เคล็ดลับ: กดปุ่ม Space บนแป้นพิมพ์เพื่อหยุดเอฟเฟกต์ได้');
-    </script>
+  <div id="map"></div>
+  <div class="custom-button" id="stopRippleBtn">หยุดเอฟเฟกต์</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([16.246825, 103.25199], 10);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+  </script>
+
+  <!-- โหลดสคริปต์ ripple และคลิก -->
+  <script src="clickpoint.js"></script>
 </body>
 </html>
-   <!-- <script src="clickpoint.js"></script>  -->
-
