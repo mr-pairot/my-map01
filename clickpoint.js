@@ -2,6 +2,7 @@ let rippleInterval = null;
 let currentPosition = null;
 let centerDot = null;
 
+
 // ฟังก์ชันสร้าง ripple
 const createSingleRipple = () => {
   if (!currentPosition) return;
@@ -88,6 +89,7 @@ function showCoordinatePopup(latlng) {
 
 // คลิกขวา
 map.on('contextmenu', function(e) {
+    createSingleRipple();
     showCoordinatePopup(e.latlng);
 });
 
@@ -96,6 +98,7 @@ let holdTimeout = null;
 
 map.on('mousedown', function(e) {
     holdTimeout = setTimeout(() => {
+        createSingleRipple();
         showCoordinatePopup(e.latlng);
     }, 2000);
 });
