@@ -80,6 +80,11 @@ function updateCenterDotPosition() {
 map.on('move', updateCenterDotPosition);
 map.on('zoom', updateCenterDotPosition);
 
+// คลิกซ้าย
+map.on('click', (e) => {
+  startRippleEffect(e.latlng, { interval: 1200 });
+});
+
 // คลิกขวา
 map.on('contextmenu', function(e) {
     startRippleEffect(e.latlng, { interval: 500 });
