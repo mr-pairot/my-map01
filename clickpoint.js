@@ -103,3 +103,13 @@ map.on('mousedown', function(e) {
 map.on('mouseup', function() {
     clearTimeout(holdTimeout);
 });
+
+function updateCenterDotPosition() {
+  if (!currentPosition || !centerDot) return;
+  const point = map.latLngToContainerPoint(currentPosition);
+  centerDot.style.left = `${point.x}px`;
+  centerDot.style.top = `${point.y}px`;
+}
+// เมื่อแผนที่ถูกเลื่อนหรือซูม ให้ขยับ centerDot ตาม
+map.on('move', updateCenterDotPosition);
+map.on('zoom', updateCenterDotPosition);
