@@ -1,51 +1,263 @@
-<!DOCTYPE >
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Leaflet Geometry Management</title>
-    <link rel="stylesheet" href="./node_modules/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="dist/leaflet-geoman.css" />
-    <script src="./node_modules/leaflet/dist/leaflet-src.js"></script>
-    <script src="./node_modules/prosthetic-hand/dist/prosthetic-hand.js"></script>
-    <script src="../../leaflet-measure-path/leaflet-measure-path.js"></script>
-        
-    <!--
-            <script src="https://unpkg.com/leaflet.markercluster@1.0.0"></script>
-        -->
-
-    <script src="cypress/libs/proj4-2.8.0.min.js"></script>
-    <script src="cypress/libs/proj4leaflet-1.0.2.min.js"></script>
-
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Click Ripple Effect</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
     <style>
-      html,
-      body {
-        font-family: Arial, Verdana;
-        background-color: #eef1ef;
-        font-size: 16px;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-      }
-
-      .wrapper {
-        width: 100%;
-        height: 100%;
-      }
-
-      #map {
-        height: 500px;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="wrapper">
-      <div id="map"></div>
-    </div>
-    <!-- -->
-            <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.js"></script>
-
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
         
-    <script src="dist/leaflet-geoman.js"></script>
-  </body>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 250px;
+        }
+
+        .ripple-effect {
+            position: absolute;
+            border: 2px solid #808080;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            animation: ripple 1.5s ease-out forwards;
+            background: transparent;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                border-width: 2px;
+            }
+            50% {
+                opacity: 0.7;
+                border-width: 1px;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+                border-width: 0.5px;
+            }
+        }
+
+        .center-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .control-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-button:hover {
+            background: #005a8b;
+        }
+
+        .control-button.stop {
+            background: #dc3545;
+        }
+
+        .control-button.stop:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="controls">
+        <h4>การควบคุม</h4>
+        <button class="control-button stop" id="stopRipples">หยุดเอฟเฟกต์</button>
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            <strong>สถานะ:</strong> <span id="status">พร้อมใช้งาน</span>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h4>วิธีใช้งาน</h4>
+        <p>• คลิกบนแผนที่เพื่อเริ่มเอฟเฟกต์ที่จุดนั้น</p>
+        <p>• คลิกขวาหรือคลิกค้าง 2 วินาที เพื่อคัดลอกพิกัด</p>
+        <div id="click-info">
+            <strong>ตำแหน่งปัจจุบัน:</strong><br>
+            <span id="coordinates">ยังไม่ได้คลิก</span>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <!-- Main Script -->
+    <script>
+        const map = L.map('map').setView([16.246825, 103.25199], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        let currentRippleInterval = null;
+        let currentPosition = null;
+        let currentCenterDot = null;
+        let isRippleActive = false;
+
+        function createCenterDot(containerPoint) {
+            if (currentCenterDot && currentCenterDot.parentNode) {
+                currentCenterDot.parentNode.removeChild(currentCenterDot);
+            }
+
+            const dot = document.createElement('div');
+            dot.className = 'center-dot';
+            dot.style.left = containerPoint.x + 'px';
+            dot.style.top = containerPoint.y + 'px';
+            map.getContainer().appendChild(dot);
+            currentCenterDot = dot;
+            return dot;
+        }
+
+        function updateCenterDotPosition() {
+            if (currentCenterDot && currentPosition) {
+                const containerPoint = map.latLngToContainerPoint(currentPosition);
+                currentCenterDot.style.left = containerPoint.x + 'px';
+                currentCenterDot.style.top = containerPoint.y + 'px';
+            }
+        }
+
+        function createContinuousRipples(latlng, containerPoint) {
+            const createSingleRipple = () => {
+                const ripple = document.createElement('div');
+                const currentContainerPoint = map.latLngToContainerPoint(currentPosition);
+                ripple.className = 'ripple-effect';
+                ripple.style.left = currentContainerPoint.x + 'px';
+                ripple.style.top = currentContainerPoint.y + 'px';
+                map.getContainer().appendChild(ripple);
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1500);
+            };
+
+            createSingleRipple();
+            currentRippleInterval = setInterval(createSingleRipple, 800);
+        }
+
+        function stopRipples() {
+            if (currentRippleInterval) {
+                clearInterval(currentRippleInterval);
+                currentRippleInterval = null;
+            }
+            isRippleActive = false;
+            currentPosition = null;
+
+            document.querySelectorAll('.ripple-effect').forEach(el => el.remove());
+
+            if (currentCenterDot && currentCenterDot.parentNode) {
+                currentCenterDot.parentNode.removeChild(currentCenterDot);
+                currentCenterDot = null;
+            }
+
+            updateStatus('พร้อมใช้งาน');
+            document.getElementById('coordinates').innerHTML = 'ยังไม่ได้คลิก';
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+        }
+
+        map.on('click', function(e) {
+            const latlng = e.latlng;
+
+            if (currentRippleInterval) {
+                stopRipples();
+            }
+
+            currentPosition = latlng;
+            const containerPoint = map.latLngToContainerPoint(latlng);
+            createCenterDot(containerPoint);
+
+            document.getElementById('coordinates').innerHTML = 
+                `Lat: ${latlng.lat.toFixed(6)}<br>Lng: ${latlng.lng.toFixed(6)}`;
+
+            isRippleActive = true;
+            updateStatus('กำลังทำงาน...');
+            createContinuousRipples(latlng, containerPoint);
+        });
+
+        map.on('moveend zoomend', function() {
+            updateCenterDotPosition();
+        });
+
+        document.getElementById('stopRipples').addEventListener('click', stopRipples);
+
+        L.marker([16.246825, 103.25199]).addTo(map)
+            .bindPopup('<b>มหาวิทยาลัยมหาสารคาม</b><br>คลิกบนแผนที่เพื่อเริ่มเอฟเฟกต์');
+
+        L.marker([16.2423, 103.2547]).addTo(map)
+            .bindPopup('ศาลากลางจังหวัดมหาสารคาม');
+
+        L.marker([16.1833, 103.3000]).addTo(map)
+            .bindPopup('อำเภอกันทรวิชัย');
+
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRippleActive) {
+                    stopRipples();
+                }
+            }
+        });
+
+        console.log('💡 กดปุ่ม Space เพื่อหยุดเอฟเฟกต์');
+
+        // นำเข้าโค้ดการคลิก (ค้าง/ขวา)
+    </script>
+    <script src="clickpoint.js"></script>
+</body>
 </html>
