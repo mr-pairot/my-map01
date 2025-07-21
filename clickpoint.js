@@ -82,7 +82,7 @@ map.on('zoom', updateCenterDotPosition);
 
 // คลิกซ้าย
 map.on('click', (e) => {
-  startRippleEffect(e.latlng, { interval: 1200 });
+  startRippleEffect(e.latlng, { interval: 1000 });
 });
 
 // คลิกขวา
@@ -105,3 +105,10 @@ map.on('mouseup', function() {
     clearTimeout(holdTimeout);
 });
 
+// ปุ่มหยุด ripple
+document.getElementById('stopRippleBtn').addEventListener('click', stopRipples);
+
+// กด Spacebar เพื่อหยุด ripple
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') stopRipples();
+});
