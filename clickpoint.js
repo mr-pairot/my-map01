@@ -50,7 +50,7 @@ map.on('click', (e) => {
   map.getContainer().appendChild(centerDot);
 
   // เริ่มวง ripple ใหม่
-  rippleInterval = setInterval(createSingleRipple, 800);
+  rippleInterval = setInterval(createSingleRipple, 1000);
   createSingleRipple();
 });
 
