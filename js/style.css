@@ -157,17 +157,17 @@
 	}
 
 .legend-item i {
-  	width: 18px;
-  	height: 18px;
+  	/*width: 16px;*/
+  	height: 16px;
   	/*min-width: 15px;*/
   	display: inline-block;
-  	margin-right: 8px;
+  	margin-right: 2px;
   	border: 1px solid #333;
 	}
 
 .legend i {
-      	width: 18px;
-      	height: 18px;
+      	/*width: 18px;*/
+      	height: 16px;
       	float: left;
       	margin-right: 8px;
       	opacity: 0.9;
