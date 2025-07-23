@@ -182,6 +182,22 @@
     // เพิ่ม base map แรกเป็นค่าเริ่มต้น
     baseMaps["OpenStreetMap"].addTo(map);
 
+    // เพิ่ม scale control
+    L.control
+      .scale({
+        metric: true,
+        imperial: false,
+        position: "bottomleft",
+      })
+      .addTo(map);
+    
+       
+    // ย้าย zoom control ไปมุมซ้ายบน
+    map.removeControl(map.zoomControl);
+    L.control.zoom({
+      position: "topleft",
+    }).addTo(map);
+	  
     // Layer groups 
     const layerALTrack = L.layerGroup();
     const layerStationLayout = L.layerGroup();
@@ -779,27 +795,7 @@ function loadPolygonLand() {
 	});
 
 
-    // เพิ่ม scale control
-  /*
-    L.control
-      .scale({
-        metric: true,
-        imperial: false,
-        position: "bottomleft",
-      })
-      .addTo(map);
-    */
-    L.control.betterscale({
-        metric: true,
-        imperial: false,
-        position: "bottomleft",
-      }).addTo(map);
-    
-    // ย้าย zoom control ไปมุมซ้ายบน
-    map.removeControl(map.zoomControl);
-    L.control.zoom({
-      position: "topleft",
-    }).addTo(map);
+
     
     // Debug: แสดงพิกัดเมื่อคลิก
     map.on("click", (e) => {
