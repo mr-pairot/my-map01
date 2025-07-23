@@ -596,7 +596,6 @@
     }
 
 // 6. Load Polygon Land - ดึงข้อมูลจาก polygon.kml พร้อม legend
-
 function loadPolygonLand() {
   if (isPolygonLandLoaded) return;
 
@@ -646,7 +645,31 @@ function loadPolygonLand() {
         // ตรวจสอบว่า layer ถูกเปิดอยู่หรือไม่ ถ้าใช่ให้แสดง legend
         if (map.hasLayer(layerPolygonLand)) {
           polygonLandLegend.addTo(map);
-        }
+        /////////////////////////////
+		// ✅ Add Search
+
+          const searchControl = new L.Control.Search({
+            layer: layerPolygonLand,
+            propertyName: 'Code',
+            marker: false,
+            moveToLocation: function (latlng, title, map) {
+              	map.setView(latlng, 15);
+
+            //*	layerPolygonLand.eachLayer(function (layer) {
+            //		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
+           //      		layer.openPopup(); 
+           //     	}
+           // 	});  
+	     
+            }
+          
+            map.addControl(searchControl);
+	    
+    	});
+	
+	
+	/////////////////////////////
+	}
       }
     })
     .on("error", (err) => {
