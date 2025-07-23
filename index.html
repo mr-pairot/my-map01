@@ -646,9 +646,10 @@ function loadPolygonLand() {
         propertyName: 'Code',
         marker: false,
         moveToLocation: function (latlng, title, map) {
-          map.setView(latlng, 13);
+          map.setView(latlng, 14);
         }
       });
+
 // ✅ แสดง popup เมื่อค้นหาเจอ
 searchControlPolygonLand.on('search:locationfound', function (e) {
   if (e.layer) {
