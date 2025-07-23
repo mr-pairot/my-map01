@@ -1,4 +1,4 @@
- 
+/*
 .leaflet-container .leaflet-control-search {
 	position:relative;
 	float:left;
@@ -12,7 +12,17 @@
 	box-shadow: 0 1px 7px rgba(0,0,0,0.65);
 	margin-left: 10px;
 	margin-top: 10px;
+} */
+.leaflet-container .leaflet-control-search {
+	position: absolute;   /* ใช้ absolute แทน relative */
+	top: 10px;
+	right: 10px;
+	left: auto;           /* ปิดการอิง left */
+	float: none;          /* ยกเลิก float */
+	margin-left: 0;       /* ป้องกันค่าซ้ำจากเดิม */
+	margin-top: 0;
 }
+
 .leaflet-control-search.search-exp {/*expanded*/
 	box-shadow: 0 1px 7px #999;
 	background: #fff;
