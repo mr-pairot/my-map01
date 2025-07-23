@@ -175,6 +175,12 @@
   margin-bottom: 0;
 }
 
+.legend-total {
+  margin-top: 5px;
+  font-size: 90%;
+  color: #333;
+}
+
 .custom-attribution {
   	position: absolute;
   	bottom: 24px;
