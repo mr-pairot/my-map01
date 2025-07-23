@@ -667,17 +667,18 @@ function loadPolygonLand() {
             propertyName: 'Code',
             marker: false,
             moveToLocation: function (latlng, title, map) {
-              map.setView(latlng, 15);
-            
-	   layerPolygonLand.eachLayer(function (layer) {
-    		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
-      			layer.openPopup(); 
-    	        }
-  	   });
-          });
-          map.addControl(searchControl);
+              	map.setView(latlng, 15);
+
+            	layerPolygonLand.eachLayer(function (layer) {
+            		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
+                  		layer.openPopup(); 
+                	}
+            	});
+            }
+          
+            map.addControl(searchControl);
 	    
-    })
+    	});
     .on("error", (err) => {
       clearTimeout(timeoutId);
       console.error("Error loading Polygon Land KML:", err);
