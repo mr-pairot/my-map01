@@ -49,7 +49,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400&display=swap" rel="stylesheet">
 
  <!-- Search Box -->
-  <link rel="stylesheet" href="js/leaflet-search.css"></script>
+  <link rel="stylesheet" href="js/leaflet-search.css">
   <script src="js/leaflet-search.js"></script>
 	
   <style>
@@ -660,6 +660,18 @@ function loadPolygonLand() {
           polygonLandLegend.addTo(map);
         }
       }
+
+// ✅ Add Search
+          const searchControl = new L.Control.Search({
+            layer: layerPolygonLand,
+            propertyName: 'Code',
+            marker: false,
+            moveToLocation: function (latlng, title, map) {
+              map.setView(latlng, 15);
+            }
+          });
+          map.addControl(searchControl);
+	    
     })
     .on("error", (err) => {
       clearTimeout(timeoutId);
