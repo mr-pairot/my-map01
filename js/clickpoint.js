@@ -2,7 +2,6 @@ let rippleInterval = null;
 let currentPosition = null;
 let centerDot = null;
 
-// ฟังก์ชันสร้าง ripple เดี่ยว
 function createSingleRipple() {
   if (!currentPosition) return;
   const point = map.latLngToContainerPoint(currentPosition);
@@ -18,14 +17,17 @@ function createSingleRipple() {
   }, 1500);
 }
 
-// เริ่ม ripple ที่ตำแหน่ง latlng และกำหนดความเร็ว
 function startRippleEffect(latlng, options = {}) {
-  stopRipples(); // ล้างของเดิม
-
+  clearInterval(rippleInterval); 
+  rippleInterval = null;
   const { interval = 1000 } = options;
   currentPosition = latlng;
 
   const point = map.latLngToContainerPoint(currentPosition);
+  if (centerDot?.parentNode) {
+    centerDot.parentNode.removeChild(centerDot);
+  }
+
   centerDot = document.createElement('div');
   centerDot.className = 'ripple-center-dot';
   centerDot.style.left = `${point.x}px`;
@@ -34,9 +36,11 @@ function startRippleEffect(latlng, options = {}) {
 
   rippleInterval = setInterval(createSingleRipple, interval);
   createSingleRipple();
+  //fadeInButton();
+  toggleFadeShrink('stopRippleBtn', true);
+
 }
 
-// หยุด ripple ทั้งหมด
 function stopRipples() {
   clearInterval(rippleInterval);
   rippleInterval = null;
@@ -47,22 +51,76 @@ function stopRipples() {
   }
 
   currentPosition = null;
+  //fadeOutButton();
+  toggleFadeShrink('stopRippleBtn', false);
 }
 
-// แสดง popup พร้อมปุ่มคัดลอก
+//fade ปุมแสดงพิกัด
+/*
+ function toggleFade(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  if (show) {
+    el.style.display = 'block';
+    requestAnimationFrame(() => {
+      el.classList.add('show');
+    });
+  } else {
+    el.classList.remove('show');
+    setTimeout(() => {
+      el.style.display = 'none';
+    }, 600);
+  }
+}
+*/
+
+/*
+function fadeInButton() {
+  toggleFade('stopRippleBtn', true);
+}
+
+function fadeOutButton() {
+  toggleFade('stopRippleBtn', false);
+}
+*/
+function toggleFadeShrink(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  if (show) {
+    el.style.display = 'block';
+    requestAnimationFrame(() => {
+      el.classList.remove('fade-out');
+      el.classList.add('fade-in');
+    });
+  } else {
+    el.classList.remove('fade-in');
+    el.classList.add('fade-out');
+
+    setTimeout(() => {
+      el.style.display = 'none';
+    }, 600); // ตรงกับ transition
+  }
+}
+/*
+window.onload = () => {
+  fadeOutButton();
+};
+*/
 function showCoordinatePopup(latlng) {
   const lat = latlng.lat.toFixed(6);
   const lng = latlng.lng.toFixed(6);
   const gmapLink = `https://www.google.com/maps/dir/${lat},${lng}`;
 
   const popupContent = `
-    <div style="font-size: 13px;">
-      <strong>Lat:</strong> ${lat}<br>
-      <strong>Lng:</strong> ${lng}<br>
-      <a href="${gmapLink}" target="_blank">🔗 เปิดใน Google Maps</a><br>
-      <button onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
-    </div>
-  `;
+  <div class="point-popup-content">
+    <strong>พิกัด:</strong> ${lat} , ${lng}<br><br>
+    <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
+    <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
+  </div>
+`;
+
 
   L.popup()
     .setLatLng(latlng)
@@ -91,7 +149,6 @@ map.on('contextmenu', function(e) {
     showCoordinatePopup(e.latlng);
 });
 
-// คลิกค้างนาน 2 วิ
 let holdTimeout = null;
 
 map.on('mousedown', function(e) {
@@ -105,7 +162,6 @@ map.on('mouseup', function() {
     clearTimeout(holdTimeout);
 });
 
-// ปุ่มหยุด ripple
 document.getElementById('stopRippleBtn').addEventListener('click', stopRipples);
 
 // กด Spacebar เพื่อหยุด ripple
