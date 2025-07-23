@@ -151,25 +151,22 @@
 	}
 
 .legend-item {
-  	display: flex;
-  	align-items: center;
-  	margin-bottom: 4px;
-	}
+  display: flex;
+  align-items: flex-start;  /* ช่วยให้ข้อความหลายบรรทัดเริ่มที่ด้านบน */
+  gap: 6px;                 /* ระยะห่างระหว่างไอคอนกับข้อความ */
+  margin-bottom: 4px;
+}
 
 .legend-item i {
-  	width: 16px;
-  	height: 16px;
-  	/*min-width: 15px;*/
-  	display: inline-block;
-  	margin-right: 1px;
-  	border: 1px solid #333;
-	}
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  margin-top: 2px; /* ให้ไอคอนอยู่ระดับเดียวกับบรรทัดแรกของข้อความ */
+  flex-shrink: 0;  /* ป้องกันไอคอนหดตัว */
+}
 
 .legend i {
-      	/*width: 18px;*/
       	height: 16px;
-      	float: left;
-      	margin-right: 8px;
       	opacity: 0.9;
 	border: 1px solid #333;  
     	}
