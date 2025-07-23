@@ -138,8 +138,8 @@
     }
 */	
 .info.legend {
-  	max-width: 120px;
-  	padding: 8px 10px;
+  	//*max-width: 120px;*/
+  	padding: 3px 5px;
   	font-family: 'Sarabun', sans-serif;
   	font-weight: 400;
   	font-size: 12px;
