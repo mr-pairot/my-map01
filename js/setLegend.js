@@ -23,6 +23,7 @@ function getWorkStatusColor(statusWork) {
   }
 }
 
+
 function addPolygonLandLegend(features) {
   const values = new Set();
   const updateDates = new Set();
