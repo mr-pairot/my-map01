@@ -39,11 +39,10 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
   />
 
-  <!-- setPattern.js -->
+  <!-- js -->
   <script src="js/setPattern.js"></script>
-
-  <!-- setLegend.js -->
   <script src="js/setLegend.js"></script>
+  <script src="js/setPopup.js"></script>
   
   <!-- Google Font: Sarabun -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400&display=swap" rel="stylesheet">
@@ -597,6 +596,7 @@
     }
 
 // 6. Load Polygon Land - ดึงข้อมูลจาก polygon.kml พร้อม legend
+
 function loadPolygonLand() {
   if (isPolygonLandLoaded) return;
 
@@ -622,40 +622,8 @@ function loadPolygonLand() {
           if (layer.feature) {
             features.push(layer.feature);
 
-            // Popup Display feature kml
             const props = layer.feature.properties;
-            const code = props.Code || "ไม่ระบุ";
-            const type = props.Type || "ไม่ระบุ";
-            const status = props.Status || "ไม่ระบุ";
-	    const status_work = props.StatusWork || "ไม่ระบุ";
-	    const statusWorkText = (() => {
-  		switch (status_work) {
-    		case "#N/A":
-      			return "รอรับมอบพื้นที่";
-    		case "0":
-      			return "เข้าพื้นที่ไม่ได้";
-    		case "1":
-      			return "เข้าพื้นที่ได้";
-    		case "2":
-      			return "เข้าพื้นที่บางส่วน";
-    		default:
-      			return "ไม่ทราบสถานะ";
-  		}
-	})();
-            const popupContent = `
-            <div class="custom-polygonLand-popup">
-                <div><strong class="label">เลขแปลง  : </strong>
-      			<span class="parcel-code">${code}</span>
-    		</div>
-    		<div><strong class="label">ประเภทที่ดิน : </strong> ${type}</div>
-    		<div><strong class="label">สถานะส่งมอบ:</strong> 
-      		<span style="color:${getStatusColor(status)};">${status}</span>
-    		</div>
-    		<div><strong class="label">สถานะหน้างาน:</strong> 
-      		<span style="color:${getWorkStatusColor(status_work)};">${statusWorkText}</span>
-    		</div>
-  	     </div>
-	     `;
+            const popupContent = createPopupContent(props); // ✅ เรียกใช้ฟังก์ชัน
 
             layer.bindPopup(popupContent);
           }
@@ -689,6 +657,7 @@ function loadPolygonLand() {
       debugLog('Polygon Land loading error');
     });
 }
+
 
 	  
     // Layer control overlays
