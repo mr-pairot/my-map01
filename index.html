@@ -647,7 +647,7 @@ function loadPolygonLand() {
           polygonLandLegend.addTo(map);
 	 }
 // ✅ Add Search
-          const searchControl = new L.Control.Search({
+/*          const searchControl = new L.Control.Search({
             layer: layerPolygonLand,
             propertyName: 'Code',
             marker: false,
@@ -656,7 +656,7 @@ function loadPolygonLand() {
             }
           });
           map.addControl(searchControl);
-	      
+*/	      
     .on("error", (err) => {
       clearTimeout(timeoutId);
       console.error("Error loading Polygon Land KML:", err);
