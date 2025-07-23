@@ -649,7 +649,15 @@ function loadPolygonLand() {
           map.setView(latlng, 15);
         }
       });
+// ✅ แสดง popup เมื่อค้นหาเจอ
+searchControlPolygonLand.on('search:locationfound', function (e) {
+  if (e.layer) {
+    e.layer.openPopup();
+  }
+});
 
+
+	    
       // ✅ เพิ่ม legend ถ้าต้องแสดง
       if (features.length > 0) {
         polygonLandLegend = addPolygonLandLegend(features);
