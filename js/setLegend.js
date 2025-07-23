@@ -23,47 +23,63 @@ function getWorkStatusColor(statusWork) {
   }
 }
 
-
 function addPolygonLandLegend(features) {
-  const values = new Set();
-  const updateDates = new Set();
-  
-  features.forEach(feature => {
-    if (feature.properties) {
-      const val = feature.properties["StatusWork"];
-      if (val !== undefined) {
-        values.add(val);
-      }
-      
-      if (feature.properties.update_date) {
-        updateDates.add(feature.properties.update_date);
-      }
-    }
-  });
-  
-  const latestDate = Array.from(updateDates).sort().pop() || "ไม่ระบุวันที่";
-  
-  const legend = L.control({ position: "topright" }); // เปลี่ยนตำแหน่ง
-  
-  legend.onAdd = function () {
-    const div = L.DomUtil.create("div", "info legend");
-    
-    let html = `<strong>ข้อมูลพื้นที่เวนคืน</strong><br>`;
-    if (latestDate !== "ไม่ระบุวันที่") {
-      html += `<small>วันที่ ${latestDate}</small><br>`;
-    }
-    
-  html += `
-  <div class="legend-item"><i style="background: ${cGray}; border:1px dashed gray;"></i><span>รอรับมอบพื้นที่</span></div>
-  <div class="legend-item"><i style="background: ${cRed};"></i><span>เข้าพื้นที่ไม่ได้</span></div>
-  <div class="legend-item"><i style="background: ${cYellow};"></i><span>เข้าพื้นที่ได้บางส่วน</span></div>
-  <div class="legend-item"><i style="background: ${cGreen};"></i><span>เข้าพื้นที่ได้</span></div>
-  
-`;
-   
-    div.innerHTML = html;
-    return div;
-  };
-  
-  return legend;
+  const values = new Set();
+  const updateDates = new Set();
+  const statusSummary = {};
+
+  features.forEach(feature => {
+    if (feature.properties) {
+      const status = feature.properties["StatusWork"];
+      const area = parseFloat(feature.properties["Area"]) || 0;
+
+      if (status !== undefined) {
+        values.add(status);
+        if (!statusSummary[status]) {
+          statusSummary[status] = { count: 0, area: 0 };
+        }
+        statusSummary[status].count += 1;
+        statusSummary[status].area += area;
+      }
+
+      if (feature.properties.update_date) {
+        updateDates.add(feature.properties.update_date);
+      }
+    }
+  });
+
+  const latestDate = Array.from(updateDates).sort().pop() || "ไม่ระบุวันที่";
+  const legend = L.control({ position: "topright" });
+
+  // ฟอร์แมตตัวเลข
+  const fmtCount = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0 });
+  const fmtArea = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "info legend");
+
+    let html = `<strong>ข้อมูลพื้นที่เวนคืน</strong><br>`;
+    if (latestDate !== "ไม่ระบุวันที่") {
+      html += `<small>วันที่ ${latestDate}</small><br>`;
+    }
+
+    const item = (label, colorKey, statusKey) => {
+      const data = statusSummary[statusKey] || { count: 0, area: 0 };
+      return `
+        <div class="legend-item">
+          <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
+          <span>${label} ${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</span>
+        </div>`;
+    };
+
+    html += item("รอรับมอบพื้นที่", cGray, "รอรับมอบพื้นที่");
+    html += item("เข้าพื้นที่ไม่ได้", cRed, "เข้าพื้นที่ไม่ได้");
+    html += item("เข้าพื้นที่ได้บางส่วน", cYellow, "เข้าพื้นที่ได้บางส่วน");
+    html += item("เข้าพื้นที่ได้", cGreen, "เข้าพื้นที่ได้");
+
+    div.innerHTML = html;
+    return div;
+  };
+
+  return legend;
 }
