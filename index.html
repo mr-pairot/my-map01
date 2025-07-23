@@ -1,100 +1,860 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="utf-8" />
   <title>BPNP Map (Demo)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="img/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Leaflet CSS and JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="map" style="width: 100%; height: 100vh;"></div>
-
-  <!-- ช่องค้นหาเลขแปลง -->
-  <div id="search-container">
-    <input id="searchBox" list="parcelList" placeholder="ค้นหาเลขแปลง..." />
-    <datalist id="parcelList"></datalist>
-  </div>
-
-  <div id="legendContainer"></div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-tilelayer-wmts@1.0.0/leaflet-tilelayer-wmts.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@3.0.11/dist/esri-leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet-vector@3.0.0/dist/esri-leaflet-vector.js"></script>
+	
+  <!-- Scale bar-->
+  <link rel="stylesheet" href="js/L.Control.BetterScale.css" />
+  <script src="js/L.Control.BetterScale.js"></script>
+  
+  <!-- Leaflet-Geoman controls -->
+  <!-- https://geoman.io/docs/leaflet/toolbar -->
+  <link  rel="stylesheet"  href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+  <script src="https://unpkg.com/leaflet-geometryutil"></script>
+  
+   <!-- Omnivore for KML -->
   <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
-  <script src="https://unpkg.com/leaflet-control-layers-expanded/leaflet-control-layers-expanded.min.js"></script>
-  <script src="setLegend.js"></script>
+
+  <!-- Leaflet Awesome Markers CSS & JS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.awesome-markers@2.0.5/dist/leaflet.awesome-markers.css"
+  />
+  <script src="https://unpkg.com/leaflet.awesome-markers@2.0.5/dist/leaflet.awesome-markers.js"></script>
+
+  <!-- FontAwesome 5.15.4 for better compatibility -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  />
+
+  <!-- setPattern.js -->
+  <script src="js/setPattern.js"></script>
+
+  <!-- setLegend.js -->
+  <script src="js/setLegend.js"></script>
+  
+  <!-- Google Font: Sarabun -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400&display=swap" rel="stylesheet">
+
+	
+  <style>
+    html,
+    body,
+    #map {
+  	width: 100%;
+  	height: 100%;
+  	margin: 0;
+  	padding: 0;
+	}     
+  </style>
+  <link rel="stylesheet" href="js/style.css" />
+</head>
+	
+<body>
+  <div id="map"></div>
+
+  <div class="custom-button" id="stopRippleBtn" onclick="stopRipples()" style="display: none;">📡หยุดแสดงพิกัด กดปุ่ม TAB </div>
+  
+  <div class="custom-attribution">Create by : Mr.Pairot@gmail.com 07-2025</div>
+  <div id="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading...
+  </div>
+  <div id="debug-info" class="debug-info"></div>
+  <div id="notification" class="notification"></div>
+  
   <script>
-    const map = L.map("map").setView([15.0, 100.0], 6);
+    // Initialize map
+    const map = L.map("map").setView([16.5, 102.5], 8);
 
-    // แผนที่พื้นฐาน
-    const baseMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    // Debug mode
+    const DEBUG = true;
+    
+    function debugLog(message) {
+      if (DEBUG) {
+        console.log(message);
+        const debugDiv = document.getElementById('debug-info');
+        debugDiv.textContent = message;
+        debugDiv.style.display = 'block';
+        setTimeout(() => debugDiv.style.display = 'none', 3000);
+      }
+    }
 
-    // กลุ่มชั้นข้อมูล
-    const layerPolygonLand = L.layerGroup();
-    const overlays = {
-      "ผังการเวนคืนที่ดิน (Legend)": layerPolygonLand
+    // Loading state management
+    let loadingStates = {
+      alTrack: false,
+      stationLayout: false,
+      stationName: false,
+      showSTA: false,
+      polygon01: false,
+      polygonLand: false
     };
 
-    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+    function updateLoadingState(layer, isLoading) {
+      // Normalize layer key
+      const layerKey = layer.toLowerCase().replace(/\s+/g, '').replace('altrack', 'alTrack');
+      
+      if (loadingStates.hasOwnProperty(layerKey)) {
+        loadingStates[layerKey] = isLoading;
+      }
+      
+      const isAnyLoading = Object.values(loadingStates).some(state => state);
+      
+      if (isAnyLoading) {
+        document.getElementById("loading").style.display = "block";
+      } else {
+        document.getElementById("loading").style.display = "none";
+      }
+      
+      if (DEBUG) {
+        console.log('Loading states:', loadingStates);
+      }
+    }
 
-    // ===========================
-    // โหลด polygon.kml เพียงครั้งเดียว
-    // ===========================
-    const parcelFeatures = []; // เก็บข้อมูลสำหรับค้นหา
+    // Add multiple base map layers
+    const baseMaps = {
+      "OpenStreetMap": L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 18,
+          attribution: "&copy; OpenStreetMap contributors",
+        }
+      ),
+      "Google Satellite": L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 20,
+          attribution: "&copy; Google",
+        }
+      ),
+      "Google Streets": L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 20,
+          attribution: "&copy; Google",
+        }
+      ),
+      "Google Terrain": L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 20,
+          attribution: "&copy; Google",
+        }
+      ),
+      "Google Hybrid": L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 20,
+          attribution: "&copy; Google Hybrid",
+        }
+      ),
+      "Satellite": L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 18,
+          attribution: "&copy; Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community"
+        }
+      ),
+      "Terrain": L.tileLayer(
+        "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 17,
+          attribution: "&copy; OpenTopoMap contributors"
+        }
+      )
+    };
 
-    function loadPolygonLand() {
-      omnivore.kml("polygon.kml")
+    // เพิ่ม base map แรกเป็นค่าเริ่มต้น
+    baseMaps["OpenStreetMap"].addTo(map);
+
+    // Layer groups 
+    const layerALTrack = L.layerGroup();
+    const layerStationLayout = L.layerGroup();
+    const layerStationName = L.layerGroup();
+    const layerShowSTA = L.layerGroup();
+    const layerPolygon01 = L.layerGroup();
+    const layerPolygonLand = L.layerGroup();
+
+    // Flags to prevent reloading
+    let isALTrackLoaded = false;
+    let isStationLayoutLoaded = false;
+    let isStationNameLoaded = false;
+    let isShowSTALoaded = false;
+    let isPolygon01Loaded = false;
+    let isPolygonLandLoaded = false;
+    let isPolygonLandLegendAdded = false;
+	
+    // ตัวแปรสำหรับเก็บ legend control
+    let polygonLandLegend = null;
+	  
+    // PNG Icons
+    const icons = {
+      station: L.icon({
+        iconUrl: 'img/train (blue).png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      }),
+      stop: L.icon({
+        iconUrl: 'img/train (orange).png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      }),
+      origin: L.icon({
+        iconUrl: 'img/train (gray).png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      }),
+      default: L.icon({
+        iconUrl: 'img/train (green).png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      })
+    };
+
+    function createTimeout(layerName, timeoutMs = 30000) {
+      return setTimeout(() => {
+        const stateKey = layerName.toLowerCase().replace(/\s+/g, '').replace('track', 'Track');
+        updateLoadingState(stateKey, false);
+        debugLog(`${layerName} loading timeout`);
+        alert(`Loading ${layerName} timeout. Please check if the file is accessible.`);
+      }, timeoutMs);
+    }
+
+// 1. Load AL Track (red line)
+    function loadALTrack() {
+      if (isALTrackLoaded) return;
+      
+      updateLoadingState('alTrack', true);
+      debugLog('Loading AL Track...');
+      
+      const timeoutId = createTimeout('AL Track', 15000);
+      
+      omnivore
+        .kml("DATA/AL_Track.kml")
         .on("ready", function () {
-          this.eachLayer(function (layer) {
-            const props = layer.feature.properties;
-
-            // เก็บไว้ค้นหา
-            parcelFeatures.push({ code: props.Code, layer });
-
-            // bindPopup
-            const popupContent = `
-              <div class="custom-popup">
-                <b>เลขแปลง:</b> ${props.Code}<br>
-                <b>สถานะ:</b> ${props.Status}
-              </div>
-            `;
-            layer.bindPopup(popupContent);
+          clearTimeout(timeoutId);
+          
+          let layerCount = 0;
+          let bounds = null;
+          
+          this.eachLayer((layer) => {
+            try {
+              if (layer.setStyle) {
+                layer.setStyle({ color: "red", weight: 1 });
+              }
+              layerALTrack.addLayer(layer);
+              layerCount++;
+              
+              if (layer.getBounds) {
+                if (bounds) {
+                  bounds.extend(layer.getBounds());
+                } else {
+                  bounds = layer.getBounds();
+                }
+              } else if (layer.getLatLng) {
+                const latlng = layer.getLatLng();
+                if (bounds) {
+                  bounds.extend(latlng);
+                } else {
+                  bounds = L.latLngBounds([latlng, latlng]);
+                }
+              }
+            } catch (error) {
+              console.error("Error processing AL Track layer:", error);
+            }
           });
-
-          // เติม datalist
-          const parcelList = document.getElementById("parcelList");
-          parcelFeatures.forEach((f) => {
-            const option = document.createElement("option");
-            option.value = f.code;
-            parcelList.appendChild(option);
-          });
-
-          layerPolygonLand.addLayer(this);
+          
+          if (bounds && bounds.isValid()) {
+            map.fitBounds(bounds);
+          } else if (layerALTrack.getLayers().length > 0) {
+            try {
+              const groupBounds = layerALTrack.getBounds();
+              if (groupBounds.isValid()) {
+                map.fitBounds(groupBounds);
+              }
+            } catch (e) {
+              console.warn('Could not get bounds from layerGroup:', e);
+            }
+          }
+          
+          isALTrackLoaded = true;
+          updateLoadingState('alTrack', false);
+          debugLog(`AL Track loaded: ${layerCount} layers`);
         })
-        .on("error", function (e) {
-          console.error("เกิดข้อผิดพลาดในการโหลด polygon.kml", e.error);
+        .on("error", (err) => {
+          clearTimeout(timeoutId);
+          console.error("Error loading AL Track KML:", err);
+          alert("Error loading AL Track data: " + err.message);
+          updateLoadingState('alTrack', false);
+          debugLog('AL Track loading error');
         });
     }
 
-    loadPolygonLand();
+// 2. Load Station Layout (gray)
+    function loadStationLayout() {
+      if (isStationLayoutLoaded) return;
+      
+      updateLoadingState('stationLayout', true);
+      debugLog('Loading Station Layout...');
+      
+      const timeoutId = createTimeout('Station Layout', 30000);
+      
+      omnivore
+        .kml("DATA/Station.kml")
+        .on("ready", function () {
+          clearTimeout(timeoutId);
+          
+          let layerCount = 0;
+          this.eachLayer((layer) => {
+            try {
+              if (layer.setStyle) {
+                layer.setStyle({ color: "gray", weight: 1 });
+              }
+              layerStationLayout.addLayer(layer);
+              layerCount++;
+            } catch (error) {
+              console.error("Error processing Station Layout layer:", error);
+            }
+          });
+          
+          isStationLayoutLoaded = true;
+          updateLoadingState('stationLayout', false);
+          debugLog(`Station Layout loaded: ${layerCount} layers`);
+        })
+        .on("error", (err) => {
+          clearTimeout(timeoutId);
+          console.error("Error loading Station KML:", err);
+          alert("Error loading Station Layout data: " + err.message);
+          updateLoadingState('stationLayout', false);
+          debugLog('Station Layout loading error');
+        });
+    }
 
-    // ===========================
-    // ค้นหาเลขแปลง
-    // ===========================
-    document.getElementById("searchBox").addEventListener("change", function () {
-      const inputCode = this.value.trim();
-      const match = parcelFeatures.find((f) => f.code === inputCode);
+// 3. Load Station Name (train icons) 
+    function loadStationName() {
+      if (isStationNameLoaded) return;
+      
+      updateLoadingState('stationName', true);
+      debugLog('Loading Station Name...');
+      
+      const timeoutId = createTimeout('Station Name', 20000);
 
-      if (match) {
-        const center = match.layer.getBounds().getCenter();
-        map.setView(center, 15);
-        match.layer.openPopup();
-      } else {
-        alert("ไม่พบเลขแปลงนี้ในระบบ");
+      omnivore
+        .kml("DATA/Station_Name.kml")
+        .on("ready", function () {
+          clearTimeout(timeoutId);
+          
+          let markerCount = 0;
+          let errorCount = 0;
+          
+          this.eachLayer((layer) => {
+            try {
+              let stationName = null;
+              let styleUrl = null;
+              let coords = null;
+              
+              if (layer.feature && layer.feature.properties) {
+                const props = layer.feature.properties;
+                stationName = props.name || props.Name;
+                styleUrl = props.styleUrl;
+                if (layer.feature.geometry && layer.feature.geometry.coordinates) {
+                  const geomCoords = layer.feature.geometry.coordinates;
+                  coords = [geomCoords[1], geomCoords[0]];
+                }
+              }
+              
+              if (!coords && layer.getLatLng) {
+                coords = layer.getLatLng();
+              }
+              
+              // styleUrl เช่น "#station" ให้ตัด # ออก
+              if (styleUrl && styleUrl.startsWith("#")) {
+                styleUrl = styleUrl.substring(1);
+              }
+              
+              if (coords && stationName) {
+                const icon = icons[styleUrl] || icons.default;
+                const marker = L.marker(coords, { icon: icon }).bindTooltip(
+                  stationName,
+                  {
+                    permanent: true,
+                    direction: "top",
+                    offset: [0, -10],
+                    className: "station-tooltip",
+                  }
+                );
+                layerStationName.addLayer(marker);
+                markerCount++;
+              } else {
+                errorCount++;
+              }
+            } catch (error) {
+              errorCount++;
+              console.error("Error processing station layer:", error, layer);
+            }
+          });
+          
+          isStationNameLoaded = true;
+          updateLoadingState('stationName', false);
+          debugLog(`Station Name loaded: ${markerCount} markers, ${errorCount} errors`);
+        })
+        .on("error", (err) => {
+          clearTimeout(timeoutId);
+          console.error("Error loading Station Name KML:", err);
+          alert("Error loading Station Name data: " + err.message);
+          updateLoadingState('stationName', false);
+          debugLog('Station Name loading error');
+        });
+    }
+
+// 4. Load Show STA (blue circle markers from Sta.kml)
+    function loadShowSTA() {
+      if (isShowSTALoaded) return;
+      
+      updateLoadingState('showSTA', true);
+      debugLog('Loading Show STA...');
+
+      const timeoutId = createTimeout('Show STA', 20000);
+
+      omnivore
+        .kml("DATA/Sta.kml")
+        .on("ready", function () {
+          clearTimeout(timeoutId);
+          debugLog('Show STA KML loaded, processing...');
+
+          let markerCount = 0;
+          let errorCount = 0;
+
+          this.eachLayer((layer) => {
+            try {
+              let stationName = null;
+              let coords = null;
+
+              if (layer.feature && layer.feature.properties) {
+                const props = layer.feature.properties;
+                stationName = props.name || props.Name;
+                if (layer.feature.geometry && layer.feature.geometry.coordinates) {
+                  const geomCoords = layer.feature.geometry.coordinates;
+                  coords = [geomCoords[1], geomCoords[0]];
+                }
+              }
+
+              if (!coords && layer.getLatLng) {
+                coords = layer.getLatLng();
+              }
+
+              if (DEBUG) {
+                console.log('Processing STA layer:', {
+                  name: stationName,
+                  coords: coords,
+                  feature: layer.feature
+                });
+              }
+
+              if (coords && stationName) {
+                // ใช้ marker แบบวงกลมสีฟ้า
+                const marker = L.circleMarker(coords, {
+                  radius: 3,
+                  color: '#2196f3',
+                  fillColor: '#2196f3',
+                  fillOpacity: 0.8,
+                  weight: 2
+                })
+                .bindTooltip(
+                  `${stationName}`,
+                  {
+                    permanent: false,
+                    direction: "top",
+                    offset: [0, -10],
+                    className: "sta-tooltip",
+                  }
+                )
+                .bindPopup(`
+                  <div style="text-align: center;">
+                    <strong>กม. ${stationName}</strong><br>
+                    <small>พิกัด: ${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}</small>
+                  </div>
+                `);
+                layerShowSTA.addLayer(marker);
+                markerCount++;
+              } else {
+                errorCount++;
+                console.warn('Skipped STA layer - incomplete data:', {
+                  name: stationName,
+                  coords: coords,
+                  layer: layer
+                });
+              }
+            } catch (error) {
+              errorCount++;
+              console.error("Error processing STA layer:", error, layer);
+            }
+          });
+
+          if (markerCount === 0) {
+            debugLog(`No STA markers created. Errors: ${errorCount}`);
+            console.error('STA KML processing failed. Check if Sta.kml exists and is accessible.');
+            alert(
+              `Warning: No STA markers were created (${errorCount} errors). Check the console for details.`
+            );
+          }
+
+          isShowSTALoaded = true;
+          updateLoadingState('showSTA', false);
+          debugLog(`Show STA loaded: ${markerCount} markers, ${errorCount} errors`);
+        })
+        .on("error", (err) => {
+          clearTimeout(timeoutId);
+          console.error("Error loading Show STA KML:", err);
+          alert("Error loading Show STA data: " + err.message);
+          updateLoadingState('showSTA', false);
+          debugLog('Show STA loading error');
+          isShowSTALoaded = false;
+        });
+    }
+
+// 5. Load Polygon01 (yellow fill with orange border)-- for ROW + ETC
+    function loadPolygon01() {
+      if (isPolygon01Loaded) return;
+      
+      updateLoadingState('polygon01', true);
+      debugLog('Loading Polygon01...');
+      
+      const timeoutId = createTimeout('Polygon01', 30000);
+      
+      omnivore
+        .kml("DATA/Polygon01.kml")
+        .on("ready", function () {
+          clearTimeout(timeoutId);
+          
+          let layerCount = 0;
+          this.eachLayer((layer) => {
+            try {
+              if (layer.setStyle) {
+                layer.setStyle({ 
+                  color: "orange",       // เส้นสีส้ม
+                  weight: 2,             // ความหนาของเส้น
+                  fillColor: "yellow",   // พื้นสีเหลือง
+                  fillOpacity: 0.5       // โปร่งใส 50%
+                });
+              }
+              layerPolygon01.addLayer(layer);
+              layerCount++;
+            } catch (error) {
+              console.error("Error processing Polygon01 layer:", error);
+            }
+          });
+          
+          isPolygon01Loaded = true;
+          updateLoadingState('polygon01', false);
+          debugLog(`Polygon01 loaded: ${layerCount} layers`);
+        })
+        .on("error", (err) => {
+          clearTimeout(timeoutId);
+          console.error("Error loading Polygon01 KML:", err);
+          alert("Error loading Polygon01 data: " + err.message);
+          updateLoadingState('polygon01', false);
+          debugLog('Polygon01 loading error');
+        });
+    }
+
+// 6. Load Polygon Land - ดึงข้อมูลจาก polygon.kml พร้อม legend
+function loadPolygonLand() {
+  if (isPolygonLandLoaded) return;
+
+  updateLoadingState('polygonLand', true);
+  debugLog('Loading Polygon Land...');
+
+  const timeoutId = createTimeout('Polygon Land', 30000);
+
+  omnivore
+    .kml("DATA/polygon.kml")
+    .on("ready", function () {
+      clearTimeout(timeoutId);
+      let layerCount = 0;
+      let features = [];
+
+      this.eachLayer((layer) => {
+        try {
+          const style = getPolygonStyle(layer.feature);
+          if (layer.setStyle) {
+            layer.setStyle(style);
+          }
+
+          if (layer.feature) {
+            features.push(layer.feature);
+
+            // Popup Display feature kml
+            const props = layer.feature.properties;
+            const code = props.Code || "ไม่ระบุ";
+            const type = props.Type || "ไม่ระบุ";
+            const status = props.Status || "ไม่ระบุ";
+	    const status_work = props.StatusWork || "ไม่ระบุ";
+	    const statusWorkText = (() => {
+  		switch (status_work) {
+    		case "#N/A":
+      			return "รอรับมอบพื้นที่";
+    		case "0":
+      			return "เข้าพื้นที่ไม่ได้";
+    		case "1":
+      			return "เข้าพื้นที่ได้";
+    		case "2":
+      			return "เข้าพื้นที่บางส่วน";
+    		default:
+      			return "ไม่ทราบสถานะ";
+  		}
+	})();
+            const popupContent = `
+            <div class="custom-polygonLand-popup">
+                <div><strong class="label">เลขแปลง  : </strong>
+      			<span class="parcel-code">${code}</span>
+    		</div>
+    		<div><strong class="label">ประเภทที่ดิน : </strong> ${type}</div>
+    		<div><strong class="label">สถานะส่งมอบ:</strong> 
+      		<span style="color:${getStatusColor(status)};">${status}</span>
+    		</div>
+    		<div><strong class="label">สถานะหน้างาน:</strong> 
+      		<span style="color:${getWorkStatusColor(status_work)};">${statusWorkText}</span>
+    		</div>
+  	     </div>
+	     `;
+
+            layer.bindPopup(popupContent);
+          }
+
+          layerPolygonLand.addLayer(layer);
+          layerCount++;
+        } catch (error) {
+          console.error("Error processing Polygon Land layer:", error);
+        }
+      });
+
+      isPolygonLandLoaded = true;
+      updateLoadingState('polygonLand', false);
+      debugLog(`Polygon Land loaded: ${layerCount} layers`);
+
+      // สร้าง legend
+      if (features.length > 0) {
+        polygonLandLegend = addPolygonLandLegend(features);
+
+        // ตรวจสอบว่า layer ถูกเปิดอยู่หรือไม่ ถ้าใช่ให้แสดง legend
+        if (map.hasLayer(layerPolygonLand)) {
+          polygonLandLegend.addTo(map);
+        }
+      }
+    })
+    .on("error", (err) => {
+      clearTimeout(timeoutId);
+      console.error("Error loading Polygon Land KML:", err);
+      alert("Error loading Polygon Land data: " + err.message);
+      updateLoadingState('polygonLand', false);
+      debugLog('Polygon Land loading error');
+    });
+}
+
+	  
+    // Layer control overlays
+    const overlays = {
+      "Alignment Track (red)": layerALTrack,
+      "Station Layout (gray)": layerStationLayout,
+      "Station Name (train icon)": layerStationName,
+      "Show STA (blue dots)": layerShowSTA,
+      "Show ROW (yellow/orange)": layerPolygon01,
+      "พื้นที่เวนคืน (Legend)": layerPolygonLand,
+	    
+    };
+
+    const layerControl = L.control.layers(baseMaps, overlays, {
+      collapsed: true,
+    }).addTo(map);
+
+    map.on("overlayadd", (e) => {
+      switch (e.name) {
+        case "Alignment Track (red)":
+          loadALTrack();
+          layerALTrack.addTo(map);
+          break;
+        case "Station Layout (gray)":
+          loadStationLayout();
+          layerStationLayout.addTo(map);
+          break;
+        case "Station Name (train icon)":
+          loadStationName();
+          layerStationName.addTo(map);
+          break;
+        case "Show STA (blue dots)":
+          loadShowSTA();
+          layerShowSTA.addTo(map);
+          break;
+        case "Show ROW (yellow/orange)":
+          loadPolygon01();
+          layerPolygon01.addTo(map);
+          break;       
+	case "พื้นที่เวนคืน (Legend)":
+          loadPolygonLand();
+          layerPolygonLand.addTo(map);
+	  // เพิ่ม legend เมื่อ layer ถูกเปิด
+	  if (polygonLandLegend) {
+		polygonLandLegend.addTo(map);
+	   }
+          break;
       }
     });
+
+    map.on("overlayremove", (e) => {
+      switch (e.name) {
+        case "Alignment Track (red)":
+          map.removeLayer(layerALTrack);
+          break;
+		case "Show ROW (yellow/orange)":
+          map.removeLayer(layerPolygon01);
+          break;
+        case "Station Layout (gray)":
+          map.removeLayer(layerStationLayout);
+          break;
+        case "Station Name (train icon)":
+          map.removeLayer(layerStationName);
+          break;
+        case "Show STA (blue dots)":
+          map.removeLayer(layerShowSTA);
+          break;    
+	case "พื้นที่เวนคืน (Legend)":
+          map.removeLayer(layerPolygonLand);
+	  // ลบ legend เมื่อ layer ถูกปิด
+	  if (polygonLandLegend) {
+		map.removeControl(polygonLandLegend);
+	     }
+          break;
+        
+      }
+    });
+
+    // เริ่มต้นโหลด polygon01 และแสดงผล
+    loadPolygon01();
+    layerPolygon01.addTo(map);
+    
+    // เริ่มต้นโหลด AL Track และแสดงผล
+    loadALTrack();
+    layerALTrack.addTo(map);
+	
+    // add Leaflet-Geoman controls with some options to the map  
+    map.pm.addControls({  
+	positions:  "topleft",      // ปุ่มวาดรูปทรง
+        drawMarker: true,           // วาด Marker
+        drawPolygon: true,          // วาดรูปหลายเหลี่ยม
+        drawPolyline: true,         // วาดเส้น
+        drawCircle: true,           // วาดวงกลม
+        drawRectangle: true,        // วาดสี่เหลี่ยม
+        drawCircleMarker: false,    // ปิดใช้งาน Circle Marker
+            
+        // ปุ่มแก้ไข
+        editMode: true,             // แก้ไขรูปทรง
+        dragMode: true,             // ลากย้ายรูปทรง
+        cutPolygon: false,          // ตัดรูปหลายเหลี่ยม (Pro feature)
+        deleteLayer: true,          // ลบรูปทรง
+          
+        // ปิดฟีเจอร์ Pro
+        rotateMode: false,          // หมุนรูปทรง (Pro)
+        oneBlock: false             // วาดแบบบล็อกเดียว (Pro)
+	
+	});
+
+
+    // เพิ่ม scale control
+  /*
+    L.control
+      .scale({
+        metric: true,
+        imperial: false,
+        position: "bottomleft",
+      })
+      .addTo(map);
+    */
+    L.control.betterscale({
+        metric: true,
+        imperial: false,
+        position: "bottomleft",
+      }).addTo(map);
+    
+    // ย้าย zoom control ไปมุมซ้ายบน
+    map.removeControl(map.zoomControl);
+    L.control.zoom({
+      position: "topleft",
+    }).addTo(map);
+    
+    // Debug: แสดงพิกัดเมื่อคลิก
+    map.on("click", (e) => {
+      debugLog(`Clicked at: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`);
+    });
+
+    // Global error handler
+    window.addEventListener("error", (e) => {
+      console.error("Global error:", e.error);
+      debugLog(`Global error: ${e.error.message}`);
+    });
+
+    // ตรวจสอบการเข้าถึงไฟล์
+    function checkFileAccess() {
+      const files = ['DATA/AL_Track.kml', 'DATA/Station.kml', 'DATA/Station_Name.kml', 'DATA/Sta.kml', 'DATA/Polygon01.kml'];
+      files.forEach(file => {
+        fetch(file, { method: 'HEAD' })
+          .then(response => {
+            if (!response.ok) {
+              debugLog(`File ${file} not accessible (${response.status})`);
+            }
+          })
+          .catch(error => {
+            debugLog(`File ${file} check failed: ${error.message}`);
+          });
+      });
+    }
+
+    // ตรวจสอบ libraries
+    function checkLibraries() {
+      const libraries = [
+        { name: 'Leaflet', obj: 'L' },
+        { name: 'Omnivore', obj: 'omnivore' },
+        { name: 'AwesomeMarkers', obj: 'L.AwesomeMarkers' }
+      ];
+      
+      libraries.forEach(lib => {
+        const parts = lib.obj.split('.');
+        let obj = window;
+        for (const part of parts) {
+          obj = obj[part];
+          if (!obj) break;
+        }
+        
+        if (!obj) {
+          console.warn(`${lib.name} library not loaded!`);
+          debugLog(`${lib.name} library missing`);
+        } else {
+          debugLog(`${lib.name} library loaded`);
+        }
+      });
+    }
+
+    // เรียกใช้เมื่อโหลดหน้าเสร็จ
+    window.addEventListener('load', () => {
+      checkFileAccess();
+      checkLibraries();
+    });
   </script>
+  <script src="js/clickpoint.js"></script>
 </body>
 </html>
