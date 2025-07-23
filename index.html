@@ -166,7 +166,7 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 18,
-          attribution: "&copy; Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community"
+          attribution: "&copy; Esri &mdash; Source: Esri, Maxar, GeoEye, and the GIS User Community"
         }
       ),
       "Terrain": L.tileLayer(
@@ -662,6 +662,7 @@ function loadPolygonLand() {
       }
 
 // ✅ Add Search
+/*
           const searchControl = new L.Control.Search({
             layer: layerPolygonLand,
             propertyName: 'Code',
@@ -669,16 +670,19 @@ function loadPolygonLand() {
             moveToLocation: function (latlng, title, map) {
               	map.setView(latlng, 15);
 
-            /*	layerPolygonLand.eachLayer(function (layer) {
-            		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
-                  		layer.openPopup(); 
-                	}
-            	});  */
+            //*	layerPolygonLand.eachLayer(function (layer) {
+            //		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
+           //      		layer.openPopup(); 
+           //     	}
+           // 	});  
+	     
             }
           
             map.addControl(searchControl);
 	    
     	});
+
+*/
     .on("error", (err) => {
       clearTimeout(timeoutId);
       console.error("Error loading Polygon Land KML:", err);
