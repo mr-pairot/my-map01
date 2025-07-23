@@ -72,10 +72,10 @@ function addPolygonLandLegend(features) {
         </div>`;
     };
 
-    html += item("รอรับมอบพื้นที่", cGray, "รอรับมอบพื้นที่");
-    html += item("เข้าพื้นที่ไม่ได้", cRed, "เข้าพื้นที่ไม่ได้");
-    html += item("เข้าพื้นที่ได้บางส่วน", cYellow, "เข้าพื้นที่ได้บางส่วน");
-    html += item("เข้าพื้นที่ได้", cGreen, "เข้าพื้นที่ได้");
+    html += item("รอรับมอบพื้นที่", cGray, "#N/A");
+    html += item("เข้าพื้นที่ไม่ได้", cRed, "0");
+    html += item("เข้าพื้นที่ได้บางส่วน", cYellow, "2");
+    html += item("เข้าพื้นที่ได้", cGreen, 1);
 
     div.innerHTML = html;
     return div;
