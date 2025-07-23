@@ -171,6 +171,9 @@
   line-height: 1.3;
 }
 
+.legend-item:last-child {
+  margin-bottom: 0;
+}
 
 .custom-attribution {
   	position: absolute;
