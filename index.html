@@ -860,7 +860,14 @@ function loadPolygonLand() {
   </script>
   <script src="js/clickpoint.js"></script>
 
-<!--search -->
+//--search --
+<script>
+ //   const map = L.map("map").setView([15.0, 100.0], 6);
+
+  //  const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  //    attribution: '&copy; OpenStreetMap'
+  //  }).addTo(map);
+
 // กำหนดกลุ่มเลเยอร์ที่อ่านจาก KML
     const layerPolygonLand = L.geoJSON(null, {
       onEachFeature: function (feature, layer) {
@@ -893,5 +900,7 @@ function loadPolygonLand() {
     });
 
     map.addControl(searchControl);
+</script>
+	
 </body>
 </html>
