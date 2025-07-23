@@ -623,6 +623,12 @@ function loadPolygonLand() {
       			return "ไม่ทราบสถานะ";
   		}
 	})();
+const parcelList = document.getElementById("parcelList");
+parcelFeatures.forEach(p => {
+const option = document.createElement("option");
+option.value = p.code;
+parcelList.appendChild(option);
+});
             const popupContent = `
             <div class="custom-polygonLand-popup">
                 <div><strong class="label">เลขแปลง  : </strong>
@@ -669,6 +675,13 @@ function loadPolygonLand() {
       updateLoadingState('polygonLand', false);
       debugLog('Polygon Land loading error');
     });
+
+	const parcelFeatures = []; // ย้ายมาที่ index.html
+
+	// ใน eachLayer ภายใน loadPolygonLand:
+	const props = layer.feature.properties;
+	parcelFeatures.push({ code: props.Code, layer });
+	
 }
 
 	  
