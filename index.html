@@ -596,6 +596,9 @@
     }
 
 // 6. Load Polygon Land - ดึงข้อมูลจาก polygon.kml พร้อม legend
+// ✅ ประกาศ searchControl ไว้นอก function เพื่อให้เข้าถึงได้ใน event listener
+let searchControlPolygonLand;
+
 function loadPolygonLand() {
   if (isPolygonLandLoaded) return;
 
@@ -622,8 +625,7 @@ function loadPolygonLand() {
             features.push(layer.feature);
 
             const props = layer.feature.properties;
-            const popupContent = createPopupContent(props); // ✅ เรียกใช้ฟังก์ชัน
-
+            const popupContent = createPopupContent(props);
             layer.bindPopup(popupContent);
           }
 
@@ -638,17 +640,6 @@ function loadPolygonLand() {
       updateLoadingState('polygonLand', false);
       debugLog(`Polygon Land loaded: ${layerCount} layers`);
 
-      // ✅ เพิ่มระบบค้นหาหลังโหลดเสร็จ
-      const searchControl = new L.Control.Search({
-        layer: layerPolygonLand,
-        propertyName: 'Code', // ใช้ property ที่ต้องการค้นหา
-        marker: false,
-        moveToLocation: function (latlng, title, map) {
-          map.setView(latlng, 15);
-        }
-      });
-      map.addControl(searchControl);
-
       // ✅ สร้าง legend
       if (features.length > 0) {
         polygonLandLegend = addPolygonLandLegend(features);
@@ -656,6 +647,35 @@ function loadPolygonLand() {
         if (map.hasLayer(layerPolygonLand)) {
           polygonLandLegend.addTo(map);
         }
+      }
+
+      // ✅ เพิ่ม search control (ยังไม่ addTo จนกว่าจะเปิดเลเยอร์)
+      searchControlPolygonLand = new L.Control.Search({
+        layer: layerPolygonLand,
+        propertyName: 'Code',
+        marker: false,
+        moveToLocation: function (latlng, title, map) {
+          map.setView(latlng, 15);
+        }
+      });
+
+      // ✅ Event: เมื่อเปิดเลเยอร์ -> เพิ่ม searchControl
+      map.on('overlayadd', function (e) {
+        if (e.layer === layerPolygonLand && !map.hasControl(searchControlPolygonLand)) {
+          map.addControl(searchControlPolygonLand);
+        }
+      });
+
+      // ✅ Event: เมื่อปิดเลเยอร์ -> เอา searchControl ออก
+      map.on('overlayremove', function (e) {
+        if (e.layer === layerPolygonLand && map.hasControl(searchControlPolygonLand)) {
+          map.removeControl(searchControlPolygonLand);
+        }
+      });
+
+      // ✅ ตรวจสอบสถานะเปิดครั้งแรก
+      if (map.hasLayer(layerPolygonLand)) {
+        map.addControl(searchControlPolygonLand);
       }
     })
     .on("error", (err) => {
