@@ -82,7 +82,9 @@
   
   <script>
     // Initialize map
-    const map = L.map("map").setView([16.5, 102.5], 8);
+    //const map = L.map("map").setView([16.5, 102.5], 8);
+const map = L.map("map", {rotate: true});
+map.setView([16.5, 102.5], 8);
 
     // Debug mode
     const DEBUG = true;
