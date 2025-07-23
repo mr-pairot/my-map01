@@ -668,7 +668,12 @@ function loadPolygonLand() {
             marker: false,
             moveToLocation: function (latlng, title, map) {
               map.setView(latlng, 15);
-            }
+            
+	   layerPolygonLand.eachLayer(function (layer) {
+    		if (layer.feature && layer.feature.properties && layer.feature.properties.Code === title) {
+      			layer.openPopup(); 
+    	        }
+  	   });
           });
           map.addControl(searchControl);
 	    
