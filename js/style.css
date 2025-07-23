@@ -138,7 +138,7 @@
     }
 */	
 .info.legend {
-  	min-width: 120px;
+  	max-width: 120px;
   	padding: 8px 10px;
   	font-family: 'Sarabun', sans-serif;
   	font-weight: 400;
@@ -161,7 +161,7 @@
   	height: 16px;
   	/*min-width: 15px;*/
   	display: inline-block;
-  	margin-right: 2px;
+  	margin-right: 1px;
   	border: 1px solid #333;
 	}
 
