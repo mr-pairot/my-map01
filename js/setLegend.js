@@ -64,16 +64,17 @@ function addPolygonLandLegend(features) {
     }
 
   const item = (label, colorKey, statusKey) => {
-  const data = statusSummary[statusKey] || { count: 0, area: 0 };
-  return `
-    <div class="legend-item">
-      <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
-      <span>
-        ${label}<br>
-        <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
-      </span>
-    </div>`;
+  const data = statusSummary[statusKey] || { count: 0, area: 0 };
+  return `
+    <div class="legend-item">
+      <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
+      <div>
+        ${label}<br>
+        <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
+      </div>
+    </div>`;
 };
+
 
 
     html += item("รอรับมอบพื้นที่", cGray, "#N/A");
