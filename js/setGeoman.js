@@ -5,7 +5,10 @@ let isGeomanVisible = false;
 function setupGeomanToggle(map) {
   // สร้าง control ตอนเริ่ม
   map.pm.addControls({
-    position: 'topleft',
+    position: {
+    draw: "topright",
+    edit: "topleft",
+    },
     drawMarker: true,
     drawPolygon: true,
     drawPolyline: true,
