@@ -67,7 +67,7 @@ function addPolygonLandLegend(features) {
   const data = statusSummary[statusKey] || { count: 0, area: 0 };
   return `
     <div class="legend-item">
-      <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray  !important;' : ''}"></i>
+      <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
       <div>
         <strong style="font-weight:bold;">${label}</strong> <br>
         <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
