@@ -1,0 +1,27 @@
+/* setGeoman.css */
+
+.geo-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  padding: 8px 12px;
+  font-size: 18px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
+.leaflet-pm-toolbar {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s ease-out;
+}
+
+.leaflet-pm-toolbar.show {
+  max-height: 500px;
+  transition: max-height 0.4s ease-in;
+}
