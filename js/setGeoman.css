@@ -28,3 +28,7 @@
   max-height: 400px;
   transition: max-height 0.4s ease-in;
 }
+
+.leaflet-control-zoom {
+  display: none !important;
+}
