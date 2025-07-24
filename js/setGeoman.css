@@ -29,3 +29,7 @@
 #geoBtn.move-right {
   left: 210px; /* พอเหมาะกับความกว้างของ toolbar */
 }
+
+.leaflet-control-zoom {
+  display: none !important;
+}
