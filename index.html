@@ -201,12 +201,13 @@ map.setView([16.5, 102.5], 8);
       })
       .addTo(map);
     
-       
+  /*     
     // ย้าย zoom control ไปมุมซ้ายบน
     map.removeControl(map.zoomControl);
     L.control.zoom({
       position: "topleft",
     }).addTo(map);
+*/
 	  
     // Layer groups 
     const layerALTrack = L.layerGroup();
@@ -816,7 +817,7 @@ searchControlPolygonLand.on('search:locationfound', function (e) {
 */
 /* ปุ่ม Geo --*/
 //<button id="geoBtn" class="geo-toggle">⬇️</button>
-//setupGeomanToggle(map);
+setupGeomanToggle(map);
 
 
     
