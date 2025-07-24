@@ -1,9 +1,9 @@
-// setLegend.js 
-const cGreen = "#00CC00";
-const cYellow = "#FFD700";
-const cRed = "#FF0000";
-const cGray = "#778899";
-
+// setLegend.js - Updated version
+const cGreen ="#00CC00";
+const cYellow ="#FFD700";
+const cRed ="#FF0000";
+const cGray ="#778899";
+//ฟังก์ชันสีสถานะตัวอักษร Popup
 function getStatusColor(status) {
   switch (status) {
     case "ส่งมอบแล้ว": return cGreen; // เขียว
@@ -58,7 +58,7 @@ function addPolygonLandLegend(features) {
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
 
-    let html = `<strong>ข้อมูลพื้นที่เวนคืน</strong><br>`;
+    let html = `<strong style="font-weight:bold;">ข้อมูลพื้นที่เวนคืน</strong><br>`;
     if (latestDate !== "ไม่ระบุวันที่") {
       html += `<small>วันที่ ${latestDate}</small><br>`;
     }
@@ -69,7 +69,7 @@ function addPolygonLandLegend(features) {
     <div class="legend-item">
       <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
       <div>
-        ${label}<br>
+        <strong style="font-weight:bold;">${label}</strong> <br>
         <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
       </div>
     </div>`;
