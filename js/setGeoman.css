@@ -1,34 +1,31 @@
-/* setGeoman.css */
-
-.geo-toggle {
+/* ปุ่ม toggle Geoman */
+#geoBtn.geoman-toggle {
   position: absolute;
   top: 10px;
-  left: 60px;  /* ขยับจาก zoom ไปด้านขวา */
-  z-index: 1001;  /* ให้แน่ใจว่าทับ zoom control */
-  padding: 8px 12px;
-  font-size: 18px;
+  left: 5px;
+  z-index: 1001;
   background-color: white;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 18px;
   cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
-  transition: transform 0.3s ease;
+  transition: left 0.3s ease;
 }
 
-
+/* Toolbar เริ่มต้น (ซ่อน) */
 .leaflet-pm-toolbar {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.4s ease-out;
-  border: none !important;
-  box-shadow: none !important;
+  transform: translateX(-200px);
+  transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
+/* แสดง Toolbar แบบเลื่อนออก */
 .leaflet-pm-toolbar.show {
-  max-height: 400px;
-  transition: max-height 0.4s ease-in;
+  transform: translateX(0);
 }
 
-.leaflet-control-zoom {
-  display: none !important;
+/* ขยับปุ่มไปทางขวาเมื่อ Toolbar แสดง */
+#geoBtn.move-right {
+  left: 210px; /* พอเหมาะกับความกว้างของ toolbar */
 }
