@@ -58,7 +58,7 @@ function addPolygonLandLegend(features) {
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
 
-    let html = `<strong>ข้อมูลพื้นที่เวนคืน</strong><br>`;
+    let html = `<strong style="font-weight:bold;">ข้อมูลพื้นที่เวนคืน</strong><br>`;
     if (latestDate !== "ไม่ระบุวันที่") {
       html += `<small>วันที่ ${latestDate}</small><br>`;
     }
