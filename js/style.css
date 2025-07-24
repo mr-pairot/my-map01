@@ -50,13 +50,13 @@
   color: #333;
 }
 
-.custom-polygonLand-popup.parcel-code {
+.custom-polygonLand-popup .parcel-code {
   font-size: 18px;
   color: #1a237e; /* สีกรมท่า */
   font-weight: bold;
 }
 
-.custom-polygonLand-popup.label {
+.custom-polygonLand-popup .label {
   color: #444;
   font-weight: 600;
 }
