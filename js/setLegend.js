@@ -1,9 +1,9 @@
-// setLegend.js - Updated version
-const cGreen ="#00CC00";
-const cYellow ="#FFD700";
-const cRed ="#FF0000";
-const cGray ="#778899";
-//ฟังก์ชันสีสถานะตัวอักษร Popup
+// setLegend.js 
+const cGreen = "#00CC00";
+const cYellow = "#FFD700";
+const cRed = "#FF0000";
+const cGray = "#778899";
+
 function getStatusColor(status) {
   switch (status) {
     case "ส่งมอบแล้ว": return cGreen; // เขียว
@@ -24,48 +24,47 @@ function getWorkStatusColor(statusWork) {
 }
 
 function addPolygonLandLegend(features) {
-  const values = new Set();
-  const updateDates = new Set();
-  const statusSummary = {};
+  const values = new Set();
+  const updateDates = new Set();
+  const statusSummary = {};
 
-  features.forEach(feature => {
-    if (feature.properties) {
-      const status = feature.properties["StatusWork"];
-      const area = parseFloat(feature.properties["Area"]) || 0;
+  features.forEach(feature => {
+    if (feature.properties) {
+      const status = feature.properties["StatusWork"];
+      const area = parseFloat(feature.properties["Area"]) || 0;
 
-      if (status !== undefined) {
-        values.add(status);
-        if (!statusSummary[status]) {
-          statusSummary[status] = { count: 0, area: 0 };
-        }
-        statusSummary[status].count += 1;
-        statusSummary[status].area += area;
-      }
+      if (status !== undefined) {
+        values.add(status);
+        if (!statusSummary[status]) {
+          statusSummary[status] = { count: 0, area: 0 };
+        }
+        statusSummary[status].count += 1;
+        statusSummary[status].area += area;
+      }
 
-      if (feature.properties.update_date) {
-        updateDates.add(feature.properties.update_date);
-      }
-    }
-  });
+      if (feature.properties.update_date) {
+        updateDates.add(feature.properties.update_date);
+      }
+    }
+  });
 
-  const latestDate = Array.from(updateDates).sort().pop() || "ไม่ระบุวันที่";
-  const legend = L.control({ position: "topright" });
+  const latestDate = Array.from(updateDates).sort().pop() || "ไม่ระบุวันที่";
+  const legend = L.control({ position: "topright" });
 
-  // ฟอร์แมตตัวเลข
-  const fmtCount = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0 });
-  const fmtArea = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtCount = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0 });
+  const fmtArea = new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  legend.onAdd = function () {
-    const div = L.DomUtil.create("div", "info legend");
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "info legend");
 
-    let html = `<strong style="font-weight:bold;">ข้อมูลพื้นที่เวนคืน</strong><br>`;
-    if (latestDate !== "ไม่ระบุวันที่") {
-      html += `<small>วันที่ ${latestDate}</small><br>`;
-    }
+    let html = `<strong style="font-weight:bold;">ข้อมูลพื้นที่เวนคืน</strong><br>`;
+    if (latestDate !== "ไม่ระบุวันที่") {
+      html += `<small>วันที่ ${latestDate}</small><br>`;
+    }
 
-  const item = (label, colorKey, statusKey) => {
-  const data = statusSummary[statusKey] || { count: 0, area: 0 };
-  return `
+    const item = (label, colorKey, statusKey) => {
+      const data = statusSummary[statusKey] || { count: 0, area: 0 };
+      return `
     <div class="legend-item">
       <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
       <div>
@@ -73,18 +72,16 @@ function addPolygonLandLegend(features) {
         <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
       </div>
     </div>`;
-};
+    };
 
+    html += item("รอรับมอบพื้นที่", cGray, "#N/A");
+    html += item("เข้าพื้นที่ไม่ได้", cRed, "0");
+    html += item("เข้าพื้นที่ได้บางส่วน", cYellow, "2");
+    html += item("เข้าพื้นที่ได้", cGreen, 1);
 
+    div.innerHTML = html;
+    return div;
+  };
 
-    html += item("รอรับมอบพื้นที่", cGray, "#N/A");
-    html += item("เข้าพื้นที่ไม่ได้", cRed, "0");
-    html += item("เข้าพื้นที่ได้บางส่วน", cYellow, "2");
-    html += item("เข้าพื้นที่ได้", cGreen, 1);
-
-    div.innerHTML = html;
-    return div;
-  };
-
-  return legend;
+  return legend;
 }
