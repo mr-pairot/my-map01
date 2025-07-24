@@ -17,7 +17,7 @@ function setupGeomanToggle(map) {
     cutPolygon: false,
     deleteLayer: true,
     rotateMode: false,
-    oneBlock: false
+    oneBlock: true,
   });
 
   // ซ่อนไว้ก่อน (ไม่ให้แสดง control ตอนโหลด)
