@@ -1,3 +1,4 @@
+// clickpoint.js
 let rippleInterval = null;
 let currentPosition = null;
 let centerDot = null;
@@ -18,7 +19,7 @@ function createSingleRipple() {
 }
 
 function startRippleEffect(latlng, options = {}) {
-  clearInterval(rippleInterval); 
+  clearInterval(rippleInterval);
   rippleInterval = null;
   const { interval = 1000 } = options;
   currentPosition = latlng;
@@ -36,7 +37,6 @@ function startRippleEffect(latlng, options = {}) {
 
   rippleInterval = setInterval(createSingleRipple, interval);
   createSingleRipple();
-  //fadeInButton();
   toggleFadeShrink('stopRippleBtn', true);
 
 }
@@ -51,39 +51,9 @@ function stopRipples() {
   }
 
   currentPosition = null;
-  //fadeOutButton();
   toggleFadeShrink('stopRippleBtn', false);
 }
 
-//fade ปุมแสดงพิกัด
-/*
- function toggleFade(id, show) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  if (show) {
-    el.style.display = 'block';
-    requestAnimationFrame(() => {
-      el.classList.add('show');
-    });
-  } else {
-    el.classList.remove('show');
-    setTimeout(() => {
-      el.style.display = 'none';
-    }, 600);
-  }
-}
-*/
-
-/*
-function fadeInButton() {
-  toggleFade('stopRippleBtn', true);
-}
-
-function fadeOutButton() {
-  toggleFade('stopRippleBtn', false);
-}
-*/
 function toggleFadeShrink(id, show) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -100,14 +70,10 @@ function toggleFadeShrink(id, show) {
 
     setTimeout(() => {
       el.style.display = 'none';
-    }, 600); // ตรงกับ transition
+    }, 600);
   }
 }
-/*
-window.onload = () => {
-  fadeOutButton();
-};
-*/
+
 function showCoordinatePopup(latlng) {
   const lat = latlng.lat.toFixed(6);
   const lng = latlng.lng.toFixed(6);
@@ -120,7 +86,6 @@ function showCoordinatePopup(latlng) {
     <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
   </div>
 `;
-
 
   L.popup()
     .setLatLng(latlng)
@@ -144,22 +109,22 @@ map.on('click', (e) => {
 });
 
 // คลิกขวา
-map.on('contextmenu', function(e) {
-    startRippleEffect(e.latlng, { interval: 500 });
-    showCoordinatePopup(e.latlng);
+map.on('contextmenu', function (e) {
+  startRippleEffect(e.latlng, { interval: 500 });
+  showCoordinatePopup(e.latlng);
 });
 
 let holdTimeout = null;
 
-map.on('mousedown', function(e) {
-    holdTimeout = setTimeout(() => {
-        startRippleEffect(e.latlng, { interval: 500 });
-        showCoordinatePopup(e.latlng);
-    }, 2000);
+map.on('mousedown', function (e) {
+  holdTimeout = setTimeout(() => {
+    startRippleEffect(e.latlng, { interval: 500 });
+    showCoordinatePopup(e.latlng);
+  }, 2000);
 });
 
-map.on('mouseup', function() {
-    clearTimeout(holdTimeout);
+map.on('mouseup', function () {
+  clearTimeout(holdTimeout);
 });
 
 document.getElementById('stopRippleBtn').addEventListener('click', stopRipples);
