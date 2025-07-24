@@ -22,7 +22,9 @@
   <link  rel="stylesheet"  href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil"></script>
-  
+<link rel="stylesheet" href="js/setGeoman.css" />
+<script src="js/setGeoman.js"></script>
+	
    <!-- Omnivore for KML -->
   <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
 
@@ -784,7 +786,8 @@ searchControlPolygonLand.on('search:locationfound', function (e) {
     // เริ่มต้นโหลด AL Track และแสดงผล
     loadALTrack();
     layerALTrack.addTo(map);
-	
+
+/*	  
     // add Leaflet-Geoman controls with some options to the map  
     map.pm.addControls({  
 	positions:  "topleft",      // ปุ่มวาดรูปทรง
@@ -806,7 +809,10 @@ searchControlPolygonLand.on('search:locationfound', function (e) {
         oneBlock: false             // วาดแบบบล็อกเดียว (Pro)
 	
 	});
-
+*/
+<!-- ปุ่ม Geo -->
+<button id="geoBtn" class="geo-toggle">⬇️</button>
+setupGeomanToggle(map);
 
 
     
