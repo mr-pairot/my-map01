@@ -69,7 +69,7 @@ function addPolygonLandLegend(features) {
     <div class="legend-item">
       <i style="background: ${colorKey};${statusKey === 'รอรับมอบพื้นที่' ? ' border:1px dashed gray;' : ''}"></i>
       <div>
-        ${label}<br>
+        <strong>${label}</strong> <br>
         <small>${fmtCount.format(data.count)} แปลง (${fmtArea.format(data.area)} ตร.ม.)</small>
       </div>
     </div>`;
