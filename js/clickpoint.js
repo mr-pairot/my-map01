@@ -129,7 +129,9 @@ map.on('mouseup', function () {
 
 document.getElementById('stopRippleBtn').addEventListener('click', stopRipples);
 
-// กด Spacebar เพื่อหยุด ripple
+// กด Spacebar/Esc เพื่อหยุด ripple
 document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') stopRipples();
+  if (e.code === 'Space' || e.code === 'Escape') {
+    stopRipples();
+  }
 });
