@@ -12,7 +12,7 @@ function setupGeomanToggle(map) {
     drawCircle: true,
     drawRectangle: true,
     drawCircleMarker: false,
-    editMode: false,
+    editMode: true,
     dragMode: true,
     cutPolygon: false,
     deleteLayer: true,
