@@ -272,13 +272,13 @@
 /* แอนิเมชันเงากระพริบ */
 @keyframes glow {
   0% {
-    box-shadow: 0 0 5px #f5c400, 0 0 10px #f5c400;
+    box-shadow: 0 0 5px #696969, 0 0 10px #696969;
   }
   50% {
-    box-shadow: 0 0 10px #f5c400, 0 0 20px #f5c400;
+    box-shadow: 0 0 10px #696969, 0 0 20px #696969;
   }
   100% {
-    box-shadow: 0 0 5px #f5c400, 0 0 10px #f5c400;
+    box-shadow: 0 0 5px #696969, 0 0 10px #696969;
   }
 }
 
