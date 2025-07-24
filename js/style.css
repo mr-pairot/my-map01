@@ -255,29 +255,33 @@
 #stopRippleBtn {
   padding: 6px 12px;
   font-size: 12px;
-  border: 2px solid #f5c400; /* ขอบสีเหลืองเข้ม */
+  border: 2px solid #f5c400;
   background-color: white;
   color: #333;
   border-radius: 6px;
   display: inline-block;
-  opacity: 0;
-  transform: translateY(10px) scale(0.95);
-  pointer-events: none;
-  transition: opacity 0.6s ease, transform 0.6s ease;
-  animation: Btn-animation 1.5s ease-out forwards; /*test*/
-  white-space: nowrap; /* ป้องกันข้อความตัดบรรทัด */
+  opacity: 1;
+  pointer-events: auto;
+  white-space: nowrap;
+
+  /* เพิ่มเงากระพริบ */
+  box-shadow: 0 0 5px #f5c400, 0 0 10px #f5c400;
+  animation: glow 1.5s infinite ease-in-out;
 }
 
-@keyframes Btn-animation {
+/* แอนิเมชันเงากระพริบ */
+@keyframes glow {
   0% {
-    transform: scale(1);
-    opacity: 0.8;
+    box-shadow: 0 0 5px #f5c400, 0 0 10px #f5c400;
+  }
+  50% {
+    box-shadow: 0 0 10px #f5c400, 0 0 20px #f5c400;
   }
   100% {
-    transform: scale(3);
-    opacity: 0;
+    box-shadow: 0 0 5px #f5c400, 0 0 10px #f5c400;
   }
 }
+
 
 /* เอฟเฟกต์ตอน fade out (ยุบ+จาง+ขอบเข้ม) */
 #stopRippleBtn.fade-out {
