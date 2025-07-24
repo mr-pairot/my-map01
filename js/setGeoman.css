@@ -20,6 +20,8 @@
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.4s ease-out;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .leaflet-pm-toolbar.show {
