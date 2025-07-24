@@ -1,25 +1,25 @@
 /* style.css */
 .leaflet-control-layers {
-  font-family: 'Sarabun', Arial, sans-serif!important;
-  font-size: 12px!important;
-  background: rgba(255, 255, 255, 0.9)!important;
-  border-radius: 8px!important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)!important;
+  font-family: 'Sarabun', Arial, sans-serif !important;
+  font-size: 12px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 .leaflet-control-layers-expanded {
-  padding: 10px!important;
+  padding: 10px !important;
 }
 
 .leaflet-control-layers label {
-  font-family: 'Sarabun', Arial, sans-serif!important;
-  font-weight: 300!important;
-  color: #333!important;
-  margin: 4px 0!important;
+  font-family: 'Sarabun', Arial, sans-serif !important;
+  font-weight: 300 !important;
+  color: #333 !important;
+  margin: 4px 0 !important;
 }
 
 .leaflet-control-layers-base label {
-  font-weight: 400!important;
+  font-weight: 400 !important;
 }
 
 .loading {
