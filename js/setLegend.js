@@ -21,7 +21,7 @@ function getWorkStatusColor(statusWork) {
     case "1": return cGreen; // เขียว
     case "2": return cYellow; // ส้ม
     case "#N/A": return cGray; // เทา
-	case "84": return cBlue; // ฟ้า
+    case "84": return cBlue; // ฟ้า
     default: return cGray; // เทา
   }
 }
