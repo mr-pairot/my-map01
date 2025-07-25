@@ -1,7 +1,9 @@
+// setGeoman.js
+
 let isGeomanVisible = false;
 
 function setupGeomanToggle(map) {
-  // สร้างปุ่มเครื่องมือ
+  // สร้าง control ตอนเริ่ม
   map.pm.addControls({
     position: 'topleft',
     drawMarker: true,
@@ -10,7 +12,7 @@ function setupGeomanToggle(map) {
     drawCircle: true,
     drawRectangle: true,
     drawCircleMarker: false,
-    editMode: false,
+    editMode: true,
     dragMode: true,
     cutPolygon: false,
     deleteLayer: true,
@@ -18,7 +20,7 @@ function setupGeomanToggle(map) {
     oneBlock: true
   });
 
-  // ซ่อนไว้ก่อน
+  // ซ่อนไว้ก่อน (ไม่ให้แสดง control ตอนโหลด)
   setTimeout(() => {
     document.querySelector('.leaflet-pm-toolbar')?.classList.remove('show');
   }, 100);
@@ -33,12 +35,10 @@ function setupGeomanToggle(map) {
 
     if (isGeomanVisible) {
       toolbar.classList.add('show');
-      btn.classList.add('move-right');
-      btn.textContent = '⏪️'; // เปลี่ยนเป็นไอคอนยุบ
+      btn.innerText = '⬆️';
     } else {
       toolbar.classList.remove('show');
-      btn.classList.remove('move-right');
-      btn.textContent = '⏩️'; // เปลี่ยนเป็นไอคอนขยาย
+      btn.innerText = '⬇️';
     }
   });
 }
