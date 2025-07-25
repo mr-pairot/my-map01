@@ -30,10 +30,12 @@
 
 /* Toolbar เริ่มต้น (ซ่อน) */
 .leaflet-pm-toolbar {
-  transform: translateX(-200px);
+  /* transform: translateX(-200px); /* ซ่อนไว้นอกจอด้านซ้าย */
+  transform: translateY(-100%); /* ซ่อนอยู่เหนือขอบ */
   transition: transform 0.3s ease;
   z-index: 1000;
 }
+
 
 /* แสดง Toolbar แบบเลื่อนออก */
 .leaflet-pm-toolbar.show {
