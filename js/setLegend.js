@@ -1,8 +1,10 @@
-// setLegend.js - Updated version
+// setLegend.js - Updated 25-7-2568
 const cGreen ="#00CC00";
 const cYellow ="#FFD700";
 const cRed ="#FF0000";
 const cGray ="#778899";
+const cBlue ="00FFFF";
+
 //ฟังก์ชันสีสถานะตัวอักษร Popup
 function getStatusColor(status) {
   switch (status) {
@@ -19,6 +21,7 @@ function getWorkStatusColor(statusWork) {
     case "1": return cGreen; // เขียว
     case "2": return cYellow; // ส้ม
     case "#N/A": return cGray; // เทา
+	case "84": return cBlue; // ฟ้า
     default: return cGray; // เทา
   }
 }
