@@ -5,6 +5,7 @@ function createPopupContent(props) {
   const type = props.Type || "ไม่ระบุ";
   const status = props.Status || "ไม่ระบุ";
   const status_work = props.StatusWork || "ไม่ระบุ";
+  const remark = props.Remark || "";
 
   const statusWorkText = (() => {
     switch (status_work) {
@@ -32,6 +33,7 @@ function createPopupContent(props) {
       </div>
       <div><strong class="label">สถานะหน้างาน:</strong> 
         <span style="color:${getWorkStatusColor(status_work)};">${statusWorkText}</span>
+        ${remark ? `<div><em style="color:gray;">หมายเหตุ: ${remark}</em></div>` : ""}
       </div>
     </div>
   `;
