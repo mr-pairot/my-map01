@@ -1,4 +1,19 @@
 /* ปุ่ม toggle Geoman */
+.geo-toggle {
+  position: absolute;
+  top: 10px;
+  left: 60px;  /* ขยับจาก zoom ไปด้านขวา */
+  z-index: 1001;  /* ให้แน่ใจว่าทับ zoom control */
+  padding: 8px 12px;
+  font-size: 18px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
 #geoBtn.geoman-toggle {
   position: absolute;
   top: 10px;
