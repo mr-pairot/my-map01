@@ -36,9 +36,11 @@ function setupGeomanToggle(map) {
     if (isGeomanVisible) {
       toolbar.classList.add('show');
       btn.innerText = '⬆️';
+      btn.style.transform = 'translateX(260px)';  // หรือ translateY(200px)
     } else {
       toolbar.classList.remove('show');
       btn.innerText = '⬇️';
+      btn.style.transform = 'translateX(0)';      // หรือ translateY(0)
     }
   });
 }
