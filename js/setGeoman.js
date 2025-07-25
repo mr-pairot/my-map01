@@ -25,7 +25,7 @@ function setupGeomanToggle(map) {
     document.querySelector('.leaflet-pm-toolbar')?.classList.remove('show');
   }, 100);
 
-  const btn = document.getElementById('geo-toggle');
+  const btn = document.getElementById('geoBtn');
 
   btn.addEventListener('click', () => {
     const toolbar = document.querySelector('.leaflet-pm-toolbar');
