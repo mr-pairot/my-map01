@@ -75,11 +75,13 @@
 </head>
 	
 <body>	
+<!-- ปุ่ม toggle Geoman-->
+  <button id="geoBtn" class="geo-toggle">⏩️</button>
+	
   <div id="map"></div>
 	
-<!-- ปุ่ม toggle -->
-<button id="geoBtn" class="geo-toggle">⏩️</button>
-<script src="js/setGeoman.js"></script>
+
+   <script src="js/setGeoman.js"></script>
 	
   <div id="loading" class="loading">
     <i class="fas fa-spinner fa-spin" style="color: blue;"></i> Loading...
@@ -110,7 +112,8 @@ map.setView([16.5, 102.5], 8);
         setTimeout(() => debugDiv.style.display = 'none', 3000);
       }
     }
-
+	  
+setupGeomanToggle(map);
     // Loading state management
     let loadingStates = {
       alTrack: false,
