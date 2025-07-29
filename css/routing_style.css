@@ -1,0 +1,177 @@
+/* routing_style.css 
+
+/* =======================
+1) Control Panel Styling
+========================== */
+.floating-panel {
+  position: absolute;
+  top: 18px;
+  left: -200px;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  width: 170px;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 12px;
+  transition: left 0.3s ease;
+}
+.floating-panel button {
+  font-family: 'Sarabun', sans-serif !important;
+}
+.floating-panel input {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+.floating-panel.show {
+      left: 10px; /* เมื่อแสดง เลื่อนเข้าจอ */
+}
+
+.coord-row input {
+  font-family: 'Sarabun', sans-serif;
+  font-size: 12px;
+}
+
+.coord-row {
+  margin-bottom: 6px;
+}
+
+.instruction {
+  margin-top: 10px;
+  color: #0000ff;
+  font-weight: normal;
+}
+.remove-btn {
+  float: right;
+  margin-left: 8px;
+  cursor: pointer;
+  color: gray;
+  font-weight: bold;
+}
+.remove-btn:hover {
+  color: darkred;
+}
+
+/* ============================
+2) Routing Panel Styling
+============================= */
+.leaflet-routing-container {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 12px;
+  padding: 10px;
+  width: 270px;
+  border: 1px solid #e0e0e0;
+}
+.leaflet-routing-container h2 {
+  font-size: 12px;
+  color: #0047ab;
+  font-weight: bold;
+}
+.leaflet-routing-container-hide {
+  display: none;
+}
+.leaflet-routing-collapse-btn {
+  background-image: url('../img/routing.png') !important;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+}
+
+/* ============================
+3) Popup Styling
+============================= */
+.leaflet-popup-content {
+  font-family: 'Sarabun', sans-serif;
+  font-size: 10px;
+  margin: 5px 12px 5px 8px;
+}
+.route-popup {
+  background-color: transparent;
+  border: none;
+  padding: 6px;
+  maxWidth: 125px;
+}
+.route-popup strong {
+  color: #0047ab;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  position: absolute;     
+  top: 0px;
+  right: 4px;
+}
+
+/*=============================
+icon and button
+=============================*/
+.role-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+
+/* ============================
+Map Display
+============================= */
+#map {
+  height: 100vh;
+  cursor: default;
+}
+
+#routeBtn {
+  font-family: 'Sarabun', sans-serif;
+  font-size: 14px;
+  width: 120px;
+  height: 34px;
+  padding: 5px 10px;
+}
+
+#routeBtn:hover {
+  background-color: #f0f0f0;
+}
+
+#exitBtn {
+  position: absolute;     
+  top: 6px;
+  right: 6px;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 9px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: gray;
+  font-weight: bold;
+  height: 15px;
+  background-color: transparent;
+  border: none;
+}
+
+#togglePanelBtn {
+      position: absolute;
+      top: 19px;
+      left: 65px;
+      z-index: 1000;
+      background: #fff;
+      border: none;
+      border-radius: 26px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      width: 42px;
+      height: 42px;
+      background-position: center center;
+}
+
+#togglePanelBtn img {
+      width: 32px;
+      height: 32px;
+}
