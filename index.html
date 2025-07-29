@@ -26,8 +26,8 @@
   <link  rel="stylesheet"  href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil"></script>
-<link rel="stylesheet" href="js/setGeoman.css" />
-<script src="js/setGeoman-2507.js"></script>
+  <link rel="stylesheet" href="js/setGeoman.css" />
+  <script src="js/setGeoman-2507.js"></script>
 	
    <!-- Omnivore for KML -->
   <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
@@ -49,7 +49,10 @@
   <script src="js/setPattern.js"></script>
   <script src="js/setLegend.js"></script>
   <script src="js/setPopup.js"></script>
-  
+
+  <!-- Routing -->
+  <link rel="stylesheet" href="css/routing_style.css" />
+	
   <!-- Google Font: Sarabun -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400&display=swap" rel="stylesheet">
 
@@ -881,5 +884,19 @@ searchControlPolygonLand.on('search:locationfound', function (e) {
     });
   </script>
   <script src="js/clickpoint.js"></script>
+
+<!-- Routing -->
+<!-- ปุ่ม Toggle เปิด Panel Routing-->
+  <button id="togglePanelBtn" title="ค้นหาเส้นทาง">
+  <img src="img/location.png" alt="ค้นหาเส้นทาง">
+  </button>
+  <div class="floating-panel" id="control-panel">
+      <button id="routeBtn">ค้นหาเส้นทาง</button>
+      <button id="exitBtn">✖</button>
+      <div id="coord-inputs"></div>
+      <div id="showInstruction" class="instruction"></div>
+  </div>
+  <script src="js/routing_main.js"></script>
+
 </body>
 </html>
