@@ -27,7 +27,7 @@
   border: 1px solid #ccc;
 }
 .floating-panel.show {
-      left: 10px; /* เมื่อแสดง เลื่อนเข้าจอ */
+      left: 3px; /* เมื่อแสดง เลื่อนเข้าจอ */
 }
 
 .coord-row input {
