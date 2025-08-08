@@ -1,7 +1,14 @@
+// ==========================
 // clickpoint.js
+// ==========================
+
+// หน่วงเวลารอให้ Google Sheet คำนวณ (มิลลิวินาที)
+const delayMs = 1500;
+
 let rippleInterval = null;
 let currentPosition = null;
 let centerDot = null;
+let holdTimeout = null;
 
 function createSingleRipple() {
   if (!currentPosition) return;
@@ -38,7 +45,6 @@ function startRippleEffect(latlng, options = {}) {
   rippleInterval = setInterval(createSingleRipple, interval);
   createSingleRipple();
   toggleFadeShrink('stopRippleBtn', true);
-
 }
 
 function stopRipples() {
@@ -67,7 +73,6 @@ function toggleFadeShrink(id, show) {
   } else {
     el.classList.remove('fade-in');
     el.classList.add('fade-out');
-
     setTimeout(() => {
       el.style.display = 'none';
     }, 600);
@@ -79,45 +84,53 @@ function showCoordinatePopup(latlng) {
   const lng = latlng.lng.toFixed(6);
   const gmapLink = `https://www.google.com/maps/dir/${lat},${lng}`;
 
-// เรียก Google Apps Script API
   fetch("https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec", { 
     method: "POST",
-    contentType: "application/json",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ lat: lat, lng: lng })
   })
+  // รอ delayMs มิลลิวินาทีก่อนอ่านค่าที่คำนวณในชีท
+  .then(res => new Promise(resolve => setTimeout(() => resolve(res), delayMs)))
   .then(res => res.json())
   .then(data => {
-    // จัดรูป Sta ให้เป็น xx+xxx
-    let staFormatted = "";
+    // Format Sta -> xx+xxx
+    let staFormatted = "-";
     if (!isNaN(data.sta)) {
       const staInt = Math.floor(data.sta);
       const km = Math.floor(staInt / 1000);
       const m = staInt % 1000;
       staFormatted = `${km}+${String(m).padStart(3, "0")}`;
-    } else {
+    } else if (data.sta) {
       staFormatted = data.sta;
     }
 
-    // จัดรูป O/S ให้เป็น xx.xx
-    const osFormatted = parseFloat(data.os).toFixed(2);
+    // Format O/S -> xx.xx
+    let osFormatted = "-";
+    if (!isNaN(data.os)) {
+      osFormatted = parseFloat(data.os).toFixed(2);
+    }
 
-  
-  const popupContent = `
-  <div class="point-popup-content">
-    <strong>พิกัด:</strong> ${lat} , ${lng}<br>
-    <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
-    <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
-    <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
-  </div>
-`;
+    const popupContent = `
+      <div class="point-popup-content">
+        <strong>พิกัด:</strong> ${lat} , ${lng}<br>
+        <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
+        <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
+        <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
+      </div>
+    `;
 
-  L.popup()
-    .setLatLng(latlng)
-    .setContent(popupContent)
-    .openOn(map);
+    L.popup()
+      .setLatLng(latlng)
+      .setContent(popupContent)
+      .openOn(map);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("ไม่สามารถดึงข้อมูลจาก Google Sheet ได้");
+  });
 }
 
-// ปรับตำแหน่ง dot ตามการเลื่อน/ซูม
+// อัปเดตตำแหน่ง center dot เมื่อแผนที่เลื่อนหรือซูม
 function updateCenterDotPosition() {
   if (!currentPosition || !centerDot) return;
   const point = map.latLngToContainerPoint(currentPosition);
@@ -127,33 +140,32 @@ function updateCenterDotPosition() {
 map.on('move', updateCenterDotPosition);
 map.on('zoom', updateCenterDotPosition);
 
-// คลิกซ้าย
+// คลิกซ้าย -> ripple ปกติ
 map.on('click', (e) => {
   startRippleEffect(e.latlng, { interval: 1000 });
 });
 
-// คลิกขวา
+// คลิกขวา -> ripple เร็ว + popup
 map.on('contextmenu', function (e) {
   startRippleEffect(e.latlng, { interval: 500 });
   showCoordinatePopup(e.latlng);
 });
 
-let holdTimeout = null;
-
+// กดค้าง 2 วินาที -> ripple เร็ว + popup
 map.on('mousedown', function (e) {
   holdTimeout = setTimeout(() => {
     startRippleEffect(e.latlng, { interval: 500 });
     showCoordinatePopup(e.latlng);
   }, 2000);
 });
-
 map.on('mouseup', function () {
   clearTimeout(holdTimeout);
 });
 
+// ปุ่มหยุด ripple
 document.getElementById('stopRippleBtn').addEventListener('click', stopRipples);
 
-// กด Spacebar/Esc เพื่อหยุด ripple
+// Spacebar หรือ ESC -> หยุด ripple
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'Escape') {
     stopRipples();
