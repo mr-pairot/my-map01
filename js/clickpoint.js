@@ -89,7 +89,7 @@ function showCoordinatePopup(latlng) {
     .setContent('<div>กำลังโหลด...</div>')
     .openOn(map);
 
-  const url = `https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec?lat=${lat}&lng=${lng}`;
+  const url = `https://script.google.com/macros/s/AKfycbzkAVXqYjCMjk31oz2E2oUQ9425q-4QgVrHkhkC49oaFde1jdEEcR8uQj3_KjhHsCyz0g/exec?lat=${lat}&lng=${lng}`;
 
   fetch(url, { 
     method: "GET"
