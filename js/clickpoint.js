@@ -83,33 +83,46 @@ function showCoordinatePopup(latlng) {
   const lat = latlng.lat.toFixed(6);
   const lng = latlng.lng.toFixed(6);
   const gmapLink = `https://www.google.com/maps/dir/${lat},${lng}`;
+  
+  // แสดง loading
+  const loadingPopup = L.popup()
+    .setLatLng(latlng)
+    .setContent('<div>กำลังโหลด...</div>')
+    .openOn(map);
 
   fetch("https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec", { 
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ lat: lat, lng: lng })
   })
-  // รอ delayMs มิลลิวินาทีก่อนอ่านค่าที่คำนวณในชีท
-  .then(res => new Promise(resolve => setTimeout(() => resolve(res), delayMs)))
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    return res.json();
+  })
   .then(data => {
+    if (data.error) {
+      throw new Error(data.error);
+    }
+    
     // Format Sta -> xx+xxx
     let staFormatted = "-";
-    if (!isNaN(data.sta)) {
-      const staInt = Math.floor(data.sta);
+    if (!isNaN(data.sta) && data.sta !== null && data.sta !== "") {
+      const staInt = Math.floor(parseFloat(data.sta));
       const km = Math.floor(staInt / 1000);
       const m = staInt % 1000;
       staFormatted = `${km}+${String(m).padStart(3, "0")}`;
-    } else if (data.sta) {
-      staFormatted = data.sta;
     }
-
+    
     // Format O/S -> xx.xx
     let osFormatted = "-";
-    if (!isNaN(data.os)) {
+    if (!isNaN(data.os) && data.os !== null && data.os !== "") {
       osFormatted = parseFloat(data.os).toFixed(2);
     }
-
+    
     const popupContent = `
       <div class="point-popup-content">
         <strong>พิกัด:</strong> ${lat} , ${lng}<br>
@@ -118,15 +131,21 @@ function showCoordinatePopup(latlng) {
         <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
       </div>
     `;
-
+    
+    // ปิด loading popup และแสดงข้อมูลจริง
+    map.closePopup();
     L.popup()
       .setLatLng(latlng)
       .setContent(popupContent)
       .openOn(map);
   })
   .catch(err => {
-    console.error(err);
-    alert("ไม่สามารถดึงข้อมูลจาก Google Sheet ได้");
+    console.error('Error:', err);
+    map.closePopup();
+    L.popup()
+      .setLatLng(latlng)
+      .setContent(`<div>เกิดข้อผิดพลาด: ${err.message}</div>`)
+      .openOn(map);
   });
 }
 
