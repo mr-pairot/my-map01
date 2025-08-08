@@ -241,8 +241,8 @@
   transition: opacity 0.6s ease-in-out, transform 1.5s ease;
 }
 
-
 .point-popup-content {
+  padding: 14px 10px 1px;
   font: 13px 'Sarabun', sans-serif;
   text-align: center;
 }
