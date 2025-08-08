@@ -92,6 +92,7 @@ function showCoordinatePopup(latlng) {
 
   fetch("https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec", { 
     method: "POST",
+    mode: 'no-cors',//////////////
     headers: { 
       "Content-Type": "application/json",
     },
