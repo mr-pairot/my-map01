@@ -89,55 +89,81 @@ function showCoordinatePopup(latlng) {
     .setContent('<div>กำลังโหลด...</div>')
     .openOn(map);
 
-  const url = `https://script.google.com/macros/s/AKfycbzkAVXqYjCMjk31oz2E2oUQ9425q-4QgVrHkhkC49oaFde1jdEEcR8uQj3_KjhHsCyz0g/exec?lat=${lat}&lng=${lng}`;
+  // ใช้ JSONP แทน fetch
+  const callbackName = 'jsonpCallback_' + Date.now();
+  const script = document.createElement('script');
+  const url = `https://script.google.com/macros/s/AKfycbzkAVXqYjCMjk31oz2E2oUQ9425q-4QgVrHkhkC49oaFde1jdEEcR8uQj3_KjhHsCyz0g/exec?lat=${lat}&lng=${lng}&callback=${callbackName}`;
 
-  fetch(url, { 
-    method: "GET"
-    // ไม่ต้องใช้ mode: 'no-cors'
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.error) {
-      throw new Error(data.error);
+  // สร้าง callback function
+  window[callbackName] = function(data) {
+    try {
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      // Format ค่า
+      let staFormatted = "-";
+      if (!isNaN(data.sta) && data.sta !== null && data.sta !== "") {
+        const staInt = Math.floor(parseFloat(data.sta));
+        const km = Math.floor(staInt / 1000);
+        const m = staInt % 1000;
+        staFormatted = `${km}+${String(m).padStart(3, "0")}`;
+      }
+      
+      let osFormatted = "-";
+      if (!isNaN(data.os) && data.os !== null && data.os !== "") {
+        osFormatted = parseFloat(data.os).toFixed(2);
+      }
+      
+      const popupContent = `
+        <div class="point-popup-content">
+          <strong>พิกัด:</strong> ${lat} , ${lng}<br>
+          <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
+          <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
+          <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
+        </div>
+      `;
+      
+      map.closePopup();
+      L.popup()
+        .setLatLng(latlng)
+        .setContent(popupContent)
+        .openOn(map);
+        
+    } catch (err) {
+      console.error('Error:', err);
+      map.closePopup();
+      L.popup()
+        .setLatLng(latlng)
+        .setContent(`<div>เกิดข้อผิดพลาด: ${err.message}</div>`)
+        .openOn(map);
+    } finally {
+      // ลบ script และ callback
+      document.head.removeChild(script);
+      delete window[callbackName];
     }
-    
-    // Format ค่าตามเดิม
-    let staFormatted = "-";
-    if (!isNaN(data.sta) && data.sta !== null && data.sta !== "") {
-      const staInt = Math.floor(parseFloat(data.sta));
-      const km = Math.floor(staInt / 1000);
-      const m = staInt % 1000;
-      staFormatted = `${km}+${String(m).padStart(3, "0")}`;
+  };
+
+  // เพิ่ม timeout
+  setTimeout(() => {
+    if (window[callbackName]) {
+      window[callbackName]({ error: "Timeout", success: false });
     }
-    
-    let osFormatted = "-";
-    if (!isNaN(data.os) && data.os !== null && data.os !== "") {
-      osFormatted = parseFloat(data.os).toFixed(2);
-    }
-    
-    const popupContent = `
-      <div class="point-popup-content">
-        <strong>พิกัด:</strong> ${lat} , ${lng}<br>
-        <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
-        <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
-        <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
-      </div>
-    `;
-    
+  }, 15000);
+
+  script.src = url;
+  script.onerror = () => {
+    console.error('Script loading failed');
     map.closePopup();
     L.popup()
       .setLatLng(latlng)
-      .setContent(popupContent)
+      .setContent('<div>เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อได้</div>')
       .openOn(map);
-  })
-  .catch(err => {
-    console.error('Error:', err);
-    map.closePopup();
-    L.popup()
-      .setLatLng(latlng)
-      .setContent(`<div>เกิดข้อผิดพลาด: ${err.message}</div>`)
-      .openOn(map);
-  });
+    document.head.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.head.appendChild(script);
 }
 
 // อัปเดตตำแหน่ง center dot เมื่อแผนที่เลื่อนหรือซูม
