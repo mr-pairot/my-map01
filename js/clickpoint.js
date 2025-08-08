@@ -118,7 +118,8 @@ function showCoordinatePopup(latlng) {
       const popupContent = `
         <div class="point-popup-content">
           <strong>พิกัด:</strong> ${lat} , ${lng}<br>
-          <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
+          <span style="color:#000080"><strong>Sta:</strong> ${staFormatted}</span> 
+          <span style="color:#000080"><strong>O/S:</strong> ${osFormatted} m.</span><br><br>
           <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
           <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
         </div>
