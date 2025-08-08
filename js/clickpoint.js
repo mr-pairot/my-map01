@@ -3,7 +3,7 @@
 // ==========================
 
 // หน่วงเวลารอให้ Google Sheet คำนวณ (มิลลิวินาที)
-const delayMs = 1500;
+const delayMs = 1000;
 
 let rippleInterval = null;
 let currentPosition = null;
