@@ -23,7 +23,7 @@ function getWorkStatusColor(statusWork) {
     case "84": // รอส่งมอบ/ป่า
       return { color: cBlue, fillColor: cBlue, dashArray: "4, 4" }; 
     case "8":  // รอส่งมอบ/ทำสัญญาแล้ว
-      return { color: cBlue, fillColor: cGray, dashArray: "3, 3" };
+      return { color: cBlue, fillColor: cGray, dashArray: null };
     case "9":  // รอส่งมอบ/ยังไม่ทำสัญญา
       return { color: cGray, fillColor: cGray, dashArray: "3, 3" };
     default:
