@@ -79,10 +79,33 @@ function showCoordinatePopup(latlng) {
   const lng = latlng.lng.toFixed(6);
   const gmapLink = `https://www.google.com/maps/dir/${lat},${lng}`;
 
+// เรียก Google Apps Script API
+  fetch("https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec", { 
+    method: "POST",
+    contentType: "application/json",
+    body: JSON.stringify({ lat: lat, lng: lng })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // จัดรูป Sta ให้เป็น xx+xxx
+    let staFormatted = "";
+    if (!isNaN(data.sta)) {
+      const staInt = Math.floor(data.sta);
+      const km = Math.floor(staInt / 1000);
+      const m = staInt % 1000;
+      staFormatted = `${km}+${String(m).padStart(3, "0")}`;
+    } else {
+      staFormatted = data.sta;
+    }
+
+    // จัดรูป O/S ให้เป็น xx.xx
+    const osFormatted = parseFloat(data.os).toFixed(2);
+
+  
   const popupContent = `
   <div class="point-popup-content">
     <strong>พิกัด:</strong> ${lat} , ${lng}<br>
-    <strong>Sta:</strong> XX+XXX <strong>O/S:</strong> xxx m. <br><br>
+    <strong>Sta:</strong> ${staFormatted} <strong>O/S:</strong> ${osFormatted} m.<br><br>
     <button class="point-popup-btn" onclick="navigator.clipboard.writeText('${lat},${lng}')">📋 คัดลอกพิกัด</button><br>
     <button class="point-popup-btn" onclick="window.open('${gmapLink}', '_blank')">🗺️ เปิดใน Google Maps</button>
   </div>
