@@ -8,7 +8,7 @@ const cGreen  = "#00CC00";
 const cYellow = "#FFD700";
 const cRed    = "#FF0000";
 const cGray   = "#778899";
-const cBlue   = "#00FFFF";
+const cBlue   = "#acf7f7ff";
 const cDefault ="#fdfefeff"
 
 // ===== 2) ฟังก์ชันสำหรับกำหนดสี StatusWork =====
