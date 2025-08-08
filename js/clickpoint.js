@@ -84,32 +84,24 @@ function showCoordinatePopup(latlng) {
   const lng = latlng.lng.toFixed(6);
   const gmapLink = `https://www.google.com/maps/dir/${lat},${lng}`;
   
-  // แสดง loading
   const loadingPopup = L.popup()
     .setLatLng(latlng)
     .setContent('<div>กำลังโหลด...</div>')
     .openOn(map);
 
-  fetch("https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec", { 
-    method: "POST",
-   // mode: 'no-cors',//////////////
-    headers: { 
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ lat: lat, lng: lng })
+  const url = `https://script.google.com/macros/s/AKfycbyVtWXvvq-5db2oq4va7bnwIijGejTRz_bWfprWpsbxEr9M7xjz3Zeu4naXExGCtytW-g/exec?lat=${lat}&lng=${lng}`;
+
+  fetch(url, { 
+    method: "GET"
+    // ไม่ต้องใช้ mode: 'no-cors'
   })
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
-  })
+  .then(res => res.json())
   .then(data => {
     if (data.error) {
       throw new Error(data.error);
     }
     
-    // Format Sta -> xx+xxx
+    // Format ค่าตามเดิม
     let staFormatted = "-";
     if (!isNaN(data.sta) && data.sta !== null && data.sta !== "") {
       const staInt = Math.floor(parseFloat(data.sta));
@@ -118,7 +110,6 @@ function showCoordinatePopup(latlng) {
       staFormatted = `${km}+${String(m).padStart(3, "0")}`;
     }
     
-    // Format O/S -> xx.xx
     let osFormatted = "-";
     if (!isNaN(data.os) && data.os !== null && data.os !== "") {
       osFormatted = parseFloat(data.os).toFixed(2);
@@ -133,7 +124,6 @@ function showCoordinatePopup(latlng) {
       </div>
     `;
     
-    // ปิด loading popup และแสดงข้อมูลจริง
     map.closePopup();
     L.popup()
       .setLatLng(latlng)
